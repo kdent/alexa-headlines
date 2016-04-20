@@ -1,0 +1,37 @@
+{
+  "intents": [
+    {
+      "intent": "NYTPopularIntentAllSections",
+    },
+    {
+      "intent": "NYTPopularIntentBySection",
+      "slots": [
+        {
+          "name": "Section",
+          "type": "SECTION_NAMES"
+        }
+      ]
+    },
+    {
+      "intent": "AMAZON.StartOverIntent"
+    },
+    {
+      "intent": "AMAZON.RepeatIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.YesIntent"
+    },
+    {
+      "intent": "AMAZON.NoIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}
