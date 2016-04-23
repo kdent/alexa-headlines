@@ -19,31 +19,32 @@ public class NewYorkTimesPopularSpeechlet implements Speechlet {
 	private static final Logger log = LoggerFactory.getLogger(NewYorkTimesPopularSpeechlet.class); 
 
 	@Override
-	public SpeechletResponse onIntent(IntentRequest req, Session session)
+	public SpeechletResponse onIntent(IntentRequest request, Session session)
 			throws SpeechletException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public SpeechletResponse onLaunch(LaunchRequest req, Session session)
+	public SpeechletResponse onLaunch(LaunchRequest request, Session session)
 			throws SpeechletException {
-		// TODO Auto-generated method stub
+        log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
+                session.getSessionId());
 		return null;
 	}
 
 	@Override
-	public void onSessionEnded(SessionEndedRequest req, Session session)
+	public void onSessionEnded(SessionEndedRequest request, Session session)
 			throws SpeechletException {
-		// TODO Auto-generated method stub
-		
+        log.info("onSessionEnded requestId={}, sessionId={}", request.getRequestId(),
+                session.getSessionId());
 	}
 
 	@Override
-	public void onSessionStarted(SessionStartedRequest req, Session session)
+	public void onSessionStarted(SessionStartedRequest request, Session session)
 			throws SpeechletException {
-		// TODO Auto-generated method stub
-		
+        log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
+                session.getSessionId());		
 	}
 
 
