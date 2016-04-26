@@ -2,13 +2,13 @@ NYTPopularIntentAllSections the most popular stories
 NYTPopularIntentAllSections for the most popular stories
 NYTPopularIntentAllSections what are the most popular stories
 NYTPopularIntentAllSections what the most popular stories are
-NYTPopularIntentAllSections get the most popular stories are
+NYTPopularIntentAllSections get the most popular stories
 
-NYTPopularIntentBySection the most popular stories in {Category}
-NYTPopularIntentBySection for the most popular stories in {Category}
-NYTPopularIntentBySection what are the most popular stories in {Category}
+NYTPopularIntentBySection the most popular stories in {Section}
+NYTPopularIntentBySection for the most popular stories in {Section}
+NYTPopularIntentBySection what are the most popular stories in {Section}
 NYTPopularIntentBySection what are the most popular {Cateogory} stories
-NYTPopularIntentBySection what the most popular stories are in {Category}
-NYTPopularIntentBySection what the most popular {Category} stories are
-NYTPopularIntentBySection get the most popular stories in {Category}
+NYTPopularIntentBySection what the most popular stories are in {Section}
+NYTPopularIntentBySection what the most popular {Section} stories are
+NYTPopularIntentBySection get the most popular stories in {Section}
 

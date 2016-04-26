@@ -1,11 +1,14 @@
 package com.seaglass.alexa;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import com.google.gson.stream.JsonReader;
+
 
 /**
  * Hello world!
@@ -27,7 +30,7 @@ public class NewYorkTimesPopularClient
         this.apiKey = apiKey;
     }
 
-    public void connect() throws IOException {
+    public void getArticleList() throws IOException {
         if (apiKey == null) {
             throw new RuntimeException("You must set the API key before connecting.");
         }
@@ -38,14 +41,9 @@ public class NewYorkTimesPopularClient
             throw new IOException(conn.getResponseMessage());
         }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
-        reader.close();
-
+        JsonReader jsonReader = new JsonReader(new InputStreamReader(conn.getInputStream()));
         conn.disconnect();
+        String jsonContents = new String(buf);
     }
 
     private enum PopularityType {
@@ -62,7 +60,6 @@ public class NewYorkTimesPopularClient
 
         popularApiKey = args[0];
         NewYorkTimesPopularClient client = new NewYorkTimesPopularClient(popularApiKey);
-        System.out.println( "Hello World!" );
-        client.connect();
+        client.getArticleList();
     }
 }
