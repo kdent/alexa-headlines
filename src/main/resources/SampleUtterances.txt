@@ -7,7 +7,7 @@ NYTPopularIntentAllSections get the most popular stories
 NYTPopularIntentBySection the most popular stories in {Section}
 NYTPopularIntentBySection for the most popular stories in {Section}
 NYTPopularIntentBySection what are the most popular stories in {Section}
-NYTPopularIntentBySection what are the most popular {Cateogory} stories
+NYTPopularIntentBySection what are the most popular {Section} stories
 NYTPopularIntentBySection what the most popular stories are in {Section}
 NYTPopularIntentBySection what the most popular {Section} stories are
 NYTPopularIntentBySection get the most popular stories in {Section}

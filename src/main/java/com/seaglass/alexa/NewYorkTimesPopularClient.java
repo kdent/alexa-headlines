@@ -1,11 +1,13 @@
 package com.seaglass.alexa;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.stream.JsonReader;
 
@@ -30,10 +32,11 @@ public class NewYorkTimesPopularClient
         this.apiKey = apiKey;
     }
 
-    public void getArticleList() throws IOException {
+    public List<NewYorkTimesArticle> getArticleList() throws IOException {
         if (apiKey == null) {
             throw new RuntimeException("You must set the API key before connecting.");
         }
+        List<NewYorkTimesArticle> articleList = null;
         URL url = new URL(baseURL + "/" + mostType + "/" + section + "/" +
             numDays + "?api-key=" + URLEncoder.encode(apiKey, "utf-8"));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -41,25 +44,60 @@ public class NewYorkTimesPopularClient
             throw new IOException(conn.getResponseMessage());
         }
 
-        JsonReader jsonReader = new JsonReader(new InputStreamReader(conn.getInputStream()));
+        InputStream input = conn.getInputStream();
+        articleList = parsePopularArticleList(input);
+        input.close();
         conn.disconnect();
-        String jsonContents = new String(buf);
+        return articleList;
+    }
+
+    public List<NewYorkTimesArticle> parsePopularArticleList(InputStream inputStream) throws IOException {
+    	List<NewYorkTimesArticle> articleList = new ArrayList<NewYorkTimesArticle>();
+
+    	JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
+    	jsonReader.beginObject();
+
+    	// Find the results array.
+    	while (jsonReader.hasNext()) {
+    		String name = jsonReader.nextName();
+    		if (name.equals("results")) {
+    			jsonReader.beginArray();
+    			// For each item in the results array.
+    			while (jsonReader.hasNext()) {
+    				NewYorkTimesArticle article = new NewYorkTimesArticle();
+    				jsonReader.beginObject();
+    				while (jsonReader.hasNext()) {
+    					String attribute = jsonReader.nextName();
+    					if (attribute.equals("url")) {
+    						article.setUrlString(jsonReader.nextString());
+    					} else if (attribute.equals("section")) {
+    						article.setSection(jsonReader.nextString());
+    					} else if (attribute.equals("byline")) {
+    						article.setByline(jsonReader.nextString());
+    					} else if (attribute.equals("title")) {
+    						article.setTitle(jsonReader.nextString());
+    					} else if (attribute.equals("abstract")) {
+    						article.setAbstractText(jsonReader.nextString());
+    					} else if (attribute.equals("published_date")) {
+    						article.setPublishedDateString(jsonReader.nextString());
+    					} else {
+    						jsonReader.skipValue();
+    					}
+    				}
+    				jsonReader.endObject();
+    				articleList.add(article);
+    			}
+    			jsonReader.endArray();
+    		} else {
+    			jsonReader.skipValue();
+    		}
+    	}
+    	jsonReader.close();
+    	return articleList;
     }
 
     private enum PopularityType {
         mostemailed, mostshared, mostviewed
     }
 
-    public static void main( String[] args ) throws IOException
-    {
-        String popularApiKey = null;
-        if (args.length < 1) {
-            System.err.println("You must specify an API key on the command line.");
-            System.exit(1);
-        }
-
-        popularApiKey = args[0];
-        NewYorkTimesPopularClient client = new NewYorkTimesPopularClient(popularApiKey);
-        client.getArticleList();
-    }
 }

@@ -1,6 +1,12 @@
 package com.seaglass.alexa;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +20,15 @@ import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.ui.OutputSpeech;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 
-public class NewYorkTimesPopularSpeechlet implements Speechlet {
+public class NYTPopularSpeechlet implements Speechlet {
 
-	private static final Logger log = LoggerFactory.getLogger(NewYorkTimesPopularSpeechlet.class); 
+	private static final Logger log = LoggerFactory.getLogger(NYTPopularSpeechlet.class);
+	private static String newYorkTimesKey = null;
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session)
@@ -36,6 +44,23 @@ public class NewYorkTimesPopularSpeechlet implements Speechlet {
         String intentName = intent.getName();
         if (intentName.equals("NYTPopularIntentAllSections")) {
         	// Retrieve the list of most popular articles.
+        	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
+        	List<NewYorkTimesArticle> articleList = null;
+        	try {
+				articleList = apiClient.getArticleList();
+			} catch (IOException e) {
+				log.error("Error retrieving article list from the New York Times API", e);
+				resp = ErrorResponse("Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.");
+			}
+			List<String> titles = articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
+			String responseText = LanguageGenerator.itemListResponse("Here is the list of most popular articles:", titles);
+			SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+			outputSpeech.setSsml(responseText);
+			Reprompt reprompt = new Reprompt();
+			PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+			repromptSpeech.setText("Would you like to hear the list again?");
+			resp.setOutputSpeech(outputSpeech);
+			resp.setReprompt(reprompt);
         } else if (intentName.equals("NYTPopularIntentBySection")) {
         	Slot section = intent.getSlot("Section");
         	String sectionName = section.getName();
@@ -81,9 +106,27 @@ public class NewYorkTimesPopularSpeechlet implements Speechlet {
 	public void onSessionStarted(SessionStartedRequest request, Session session)
 			throws SpeechletException {
         log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());		
+                session.getSessionId());
+
+        if (newYorkTimesKey == null) {
+        	BufferedReader keyReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/nyt_key")));
+        	try {
+				newYorkTimesKey = keyReader.readLine();
+	        	keyReader.close();
+			} catch (IOException e) {
+				log.error("Error reading New York Times key file", e);
+			}
+        }
 	}
 
+	private SpeechletResponse ErrorResponse(String errorText) {
+		SpeechletResponse resp = new SpeechletResponse();
+		PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
+		outputSpeech.setText(errorText);
+		resp.setOutputSpeech(outputSpeech);
+		resp.setShouldEndSession(true);
+		return resp;
+	}
 
 
 
