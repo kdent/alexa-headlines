@@ -7,8 +7,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.slu.Slot;
@@ -20,21 +19,19 @@ import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
-import com.amazon.speech.ui.OutputSpeech;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 
 public class NYTPopularSpeechlet implements Speechlet {
 
-	private static final Logger log = LoggerFactory.getLogger(NYTPopularSpeechlet.class);
+	private static final Logger log = Logger.getLogger(NYTPopularSpeechlet.class);
 	private static String newYorkTimesKey = null;
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session)
 			throws SpeechletException {
-        log.info("onIntent requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());
+        log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
         Intent intent = request.getIntent();
 
@@ -75,8 +72,7 @@ public class NYTPopularSpeechlet implements Speechlet {
 	@Override
 	public SpeechletResponse onLaunch(LaunchRequest request, Session session)
 			throws SpeechletException {
-        log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());
+        log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
         String outputText = "Welcome to N.Y.T.'s most popular list. Which section are you interested in?";
@@ -98,15 +94,13 @@ public class NYTPopularSpeechlet implements Speechlet {
 	@Override
 	public void onSessionEnded(SessionEndedRequest request, Session session)
 			throws SpeechletException {
-        log.info("onSessionEnded requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());
+        log.info("onSessionEnded requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
 	}
 
 	@Override
 	public void onSessionStarted(SessionStartedRequest request, Session session)
 			throws SpeechletException {
-        log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());
+        log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId={}" + session.getSessionId());
 
         if (newYorkTimesKey == null) {
         	BufferedReader keyReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/nyt_key")));
