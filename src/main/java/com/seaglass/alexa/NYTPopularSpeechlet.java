@@ -23,14 +23,20 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 
+/*
+ * TODO:
+ *     - implement the built-in intents
+ *     - implement by-section intent
+ *     - include a card in the response (with links to articles?)
+ */
+
 public class NYTPopularSpeechlet implements Speechlet {
 
 	private static final Logger log = Logger.getLogger(NYTPopularSpeechlet.class);
 	private static String newYorkTimesKey = null;
 
 	@Override
-	public SpeechletResponse onIntent(IntentRequest request, Session session)
-			throws SpeechletException {
+	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
         log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
         Intent intent = request.getIntent();
@@ -70,8 +76,7 @@ public class NYTPopularSpeechlet implements Speechlet {
 	}
 
 	@Override
-	public SpeechletResponse onLaunch(LaunchRequest request, Session session)
-			throws SpeechletException {
+	public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
@@ -92,14 +97,12 @@ public class NYTPopularSpeechlet implements Speechlet {
 	}
 
 	@Override
-	public void onSessionEnded(SessionEndedRequest request, Session session)
-			throws SpeechletException {
+	public void onSessionEnded(SessionEndedRequest request, Session session) throws SpeechletException {
         log.info("onSessionEnded requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
 	}
 
 	@Override
-	public void onSessionStarted(SessionStartedRequest request, Session session)
-			throws SpeechletException {
+	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
         log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId={}" + session.getSessionId());
 
         if (newYorkTimesKey == null) {
