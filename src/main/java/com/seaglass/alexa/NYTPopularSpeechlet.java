@@ -1,6 +1,5 @@
 package com.seaglass.alexa;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -81,7 +80,7 @@ public class NYTPopularSpeechlet implements Speechlet {
         SpeechletResponse resp = new SpeechletResponse();
 
         String outputText = "Welcome to N.Y.T.'s most popular list. Which section are you interested in?";
-        String repromptText = "Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.";
+        String repromptText = "<speak>Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.</speak>";
 
         PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
         SsmlOutputSpeech repromptSpeech = new SsmlOutputSpeech();
