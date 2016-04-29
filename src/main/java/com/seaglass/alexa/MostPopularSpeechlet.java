@@ -28,9 +28,9 @@ import com.amazon.speech.ui.SsmlOutputSpeech;
  *     - include a card in the response (with links to articles?)
  */
 
-public class NYTPopularSpeechlet implements Speechlet {
+public class MostPopularSpeechlet implements Speechlet {
 
-	private static final Logger log = Logger.getLogger(NYTPopularSpeechlet.class);
+	private static final Logger log = Logger.getLogger(MostPopularSpeechlet.class);
 	private static String newYorkTimesKey = null;
 
 	@Override
@@ -50,9 +50,9 @@ public class NYTPopularSpeechlet implements Speechlet {
          * TODO: add built-in intents to the schema and re-upload.
          */
         String intentName = intent.getName();
-        if (intentName.equals("NYTPopularIntentAllSections")) {
+        if (intentName.equals("MostPopularIntentAllSections")) {
         	listIntroText = "Here is the list of most popular articles:";
-        } else if (intentName.equals("NYTPopularIntentBySection")) {
+        } else if (intentName.equals("MostPopularIntentBySection")) {
         	Slot section = intent.getSlot("Section");
         	requestedSection = section.getName();
         	if (requestedSection.equals("All") || requestedSection.equals("Everything")) {
