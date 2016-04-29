@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.amazon.speech.speechlet.lambda.SpeechletRequestStreamHandler;
 
-public class MostPopularRequestHandler extends SpeechletRequestStreamHandler {
+public class NewsGuyRequestHandler extends SpeechletRequestStreamHandler {
 
 	private static final Set<String> supportedApplicationIds;
 
@@ -15,8 +15,8 @@ public class MostPopularRequestHandler extends SpeechletRequestStreamHandler {
 	}
 
 
-	public MostPopularRequestHandler() {
-		super(new MostPopularSpeechlet(), supportedApplicationIds);
+	public NewsGuyRequestHandler() {
+		super(new NewsGuySpeechlet(), supportedApplicationIds);
 	}
 
 }

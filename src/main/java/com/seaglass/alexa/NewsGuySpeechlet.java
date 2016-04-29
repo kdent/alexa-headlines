@@ -28,9 +28,9 @@ import com.amazon.speech.ui.SsmlOutputSpeech;
  *     - include a card in the response (with links to articles?)
  */
 
-public class MostPopularSpeechlet implements Speechlet {
+public class NewsGuySpeechlet implements Speechlet {
 
-	private static final Logger log = Logger.getLogger(MostPopularSpeechlet.class);
+	private static final Logger log = Logger.getLogger(NewsGuySpeechlet.class);
 	private static String newYorkTimesKey = null;
 
 	@Override
