@@ -25,7 +25,11 @@ import com.amazon.speech.ui.SsmlOutputSpeech;
 /*
  * TODO:
  *     - implement the built-in intents
- *     - include a card in the response (with links to articles?)
+ *     - include a card in the response (with article summaries)
+ *     - change to 3 at a time and ask user about continuing or not
+ *     - cache results from the NYT API (DynamoDB)
+ *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
+ *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  */
 
 public class NewsGuySpeechlet implements Speechlet {
@@ -55,8 +59,8 @@ public class NewsGuySpeechlet implements Speechlet {
         } else if (intentName.equals("MostPopularIntentBySection")) {
         	Slot section = intent.getSlot("Section");
         	if (section != null) {
-        		requestedSection = section.getName().toLowerCase();
-        		if ("All".equals(requestedSection) || "Everything".equals(requestedSection)) {
+        		requestedSection = section.getValue().toLowerCase();
+        		if ("all".equals(requestedSection) || "everything".equals(requestedSection)) {
         			requestedSection = null;
         		}
         	}
@@ -101,7 +105,7 @@ public class NewsGuySpeechlet implements Speechlet {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
-        String outputText = "Welcome to News Guy's most popular list. You may ask for headlines from all the sections or name a particular one?";
+        String outputText = "Welcome to News Guy's most popular stories list. You may ask for headlines from all the sections or name a particular one.";
         String repromptText = "<speak>Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.</speak>";
 
         PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
@@ -124,7 +128,7 @@ public class NewsGuySpeechlet implements Speechlet {
 
 	@Override
 	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
-        log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId={}" + session.getSessionId());
+        log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
 
         if (newYorkTimesKey == null) {
         	BufferedReader keyReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/nyt_key")));
