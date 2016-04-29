@@ -54,9 +54,11 @@ public class NewsGuySpeechlet implements Speechlet {
         	listIntroText = "Here is the list of most popular articles:";
         } else if (intentName.equals("MostPopularIntentBySection")) {
         	Slot section = intent.getSlot("Section");
-        	requestedSection = section.getName();
-        	if (requestedSection.equals("All") || requestedSection.equals("Everything")) {
-        		requestedSection = null;
+        	if (section != null) {
+        		requestedSection = section.getName().toLowerCase();
+        		if ("All".equals(requestedSection) || "Everything".equals(requestedSection)) {
+        			requestedSection = null;
+        		}
         	}
         	listIntroText = "Here is the list ot most popular articles in the " + requestedSection + "section";
         } else if (intentName.equals("AMAZON.HelpIntent")) {
@@ -73,12 +75,20 @@ public class NewsGuySpeechlet implements Speechlet {
     	List<NewYorkTimesArticle> articleList = null;
     	try {
     		articleList = (requestedSection == null) ? apiClient.getArticleList() : apiClient.getArticleList(requestedSection);
+    		if (articleList == null) {
+    			throw new IOException();
+    		}
 		} catch (IOException e) {
 			log.error("Error retrieving article list from the New York Times API", e);
 			resp = ErrorResponse("Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.");
 		}
-		List<String> titles = articleList.subList(0, 4).stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
-		String responseText = LanguageGenerator.itemListResponse(listIntroText, titles);
+    	String responseText = null;
+    	if (articleList.size() == 0) {
+    		responseText = "<speak>No articles were found.</speak>";
+    	} else {
+        	List<String> titles = articleList.subList(0, 4).stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
+    		responseText = LanguageGenerator.itemListResponse(listIntroText, titles);
+    	}
 		SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
 		outputSpeech.setSsml(responseText);
 		resp.setOutputSpeech(outputSpeech);
@@ -91,7 +101,7 @@ public class NewsGuySpeechlet implements Speechlet {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
-        String outputText = "Welcome to N.Y.T.'s most popular list. You may ask for headlines from all the sections are specify a particular one?";
+        String outputText = "Welcome to News Guy's most popular list. You may ask for headlines from all the sections or name a particular one?";
         String repromptText = "<speak>Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.</speak>";
 
         PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
