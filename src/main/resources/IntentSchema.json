@@ -1,10 +1,10 @@
 {
   "intents": [
     {
-      "intent": "NYTPopularIntentAllSections",
+      "intent": "MostPopularIntentAllSections",
     },
     {
-      "intent": "NYTPopularIntentBySection",
+      "intent": "MostPopularIntentBySection",
       "slots": [
         {
           "name": "Section",

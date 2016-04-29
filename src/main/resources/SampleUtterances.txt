@@ -1,14 +1,14 @@
-NYTPopularIntentAllSections the most popular stories
-NYTPopularIntentAllSections for the most popular stories
-NYTPopularIntentAllSections what are the most popular stories
-NYTPopularIntentAllSections what the most popular stories are
-NYTPopularIntentAllSections get the most popular stories
+MostPopularIntentAllSections the most popular stories
+MostPopularIntentAllSections for the most popular stories
+MostPopularIntentAllSections what are the most popular stories
+MostPopularIntentAllSections what the most popular stories are
+MostPopularIntentAllSections get the most popular stories
 
-NYTPopularIntentBySection the most popular stories in {Section}
-NYTPopularIntentBySection for the most popular stories in {Section}
-NYTPopularIntentBySection what are the most popular stories in {Section}
-NYTPopularIntentBySection what are the most popular {Section} stories
-NYTPopularIntentBySection what the most popular stories are in {Section}
-NYTPopularIntentBySection what the most popular {Section} stories are
-NYTPopularIntentBySection get the most popular stories in {Section}
+MostPopularIntentBySection the most popular stories in {Section}
+MostPopularIntentBySection for the most popular stories in {Section}
+MostPopularIntentBySection what are the most popular stories in {Section}
+MostPopularIntentBySection what are the most popular {Section} stories
+MostPopularIntentBySection what the most popular stories are in {Section}
+MostPopularIntentBySection what the most popular {Section} stories are
+MostPopularIntentBySection get the most popular stories in {Section}
 

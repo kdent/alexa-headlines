@@ -8,7 +8,7 @@ public class LanguageGenerator {
 		StringBuilder responseText = new StringBuilder("<speak>" + listIntro);
 
 		for (String item : itemList) {
-			responseText.append(" " + item + "<break time=\"0.2s\" />");
+			responseText.append(" " + item + "<break time=\"0.5s\" />");
 		}
 
 		responseText.append("</speak>");

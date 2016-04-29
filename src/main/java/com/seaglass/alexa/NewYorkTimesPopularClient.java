@@ -32,6 +32,11 @@ public class NewYorkTimesPopularClient
         this.apiKey = apiKey;
     }
 
+    public List<NewYorkTimesArticle> getArticleList(String section) throws IOException {
+    	this.section = section;
+    	return getArticleList();
+    }
+
     public List<NewYorkTimesArticle> getArticleList() throws IOException {
         if (apiKey == null) {
             throw new RuntimeException("You must set the API key before connecting.");

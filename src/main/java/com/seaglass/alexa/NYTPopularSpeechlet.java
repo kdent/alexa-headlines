@@ -25,7 +25,6 @@ import com.amazon.speech.ui.SsmlOutputSpeech;
 /*
  * TODO:
  *     - implement the built-in intents
- *     - implement by-section intent
  *     - include a card in the response (with links to articles?)
  */
 
@@ -39,37 +38,50 @@ public class NYTPopularSpeechlet implements Speechlet {
         log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
         Intent intent = request.getIntent();
+        String listIntroText = null;
+        String requestedSection = null;
 
         if (intent == null) {
         	throw new SpeechletException("Received a NULL intent");
         }
+
+        /* 
+         * Determine user's request intent.
+         * TODO: add built-in intents to the schema and re-upload.
+         */
         String intentName = intent.getName();
         if (intentName.equals("NYTPopularIntentAllSections")) {
-        	// Retrieve the list of most popular articles.
-        	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
-        	List<NewYorkTimesArticle> articleList = null;
-        	try {
-				articleList = apiClient.getArticleList();
-			} catch (IOException e) {
-				log.error("Error retrieving article list from the New York Times API", e);
-				resp = ErrorResponse("Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.");
-			}
-			List<String> titles = articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
-			String responseText = LanguageGenerator.itemListResponse("Here is the list of most popular articles:", titles);
-			SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-			outputSpeech.setSsml(responseText);
-			Reprompt reprompt = new Reprompt();
-			PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
-			repromptSpeech.setText("Would you like to hear the list again?");
-			resp.setOutputSpeech(outputSpeech);
-			resp.setReprompt(reprompt);
+        	listIntroText = "Here is the list of most popular articles:";
         } else if (intentName.equals("NYTPopularIntentBySection")) {
         	Slot section = intent.getSlot("Section");
-        	String sectionName = section.getName();
-        	// Retrieve the list of most popular articles in the requested section.
+        	requestedSection = section.getName();
+        	if (requestedSection.equals("All") || requestedSection.equals("Everything")) {
+        		requestedSection = null;
+        	}
+        	listIntroText = "Here is the list ot most popular articles in the " + requestedSection + "section";
+        } else if (intentName.equals("AMAZON.HelpIntent")) {
+        	// TODO: to be implemented
         } else {
         	throw new SpeechletException("Unrecognized intent: " + intentName);
         }
+
+        /*
+         * Retrieve requested information from the New York Times API and formulate
+         * the response output.
+         */
+    	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
+    	List<NewYorkTimesArticle> articleList = null;
+    	try {
+    		articleList = (requestedSection == null) ? apiClient.getArticleList() : apiClient.getArticleList(requestedSection);
+		} catch (IOException e) {
+			log.error("Error retrieving article list from the New York Times API", e);
+			resp = ErrorResponse("Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.");
+		}
+		List<String> titles = articleList.subList(0, 4).stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
+		String responseText = LanguageGenerator.itemListResponse(listIntroText, titles);
+		SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+		outputSpeech.setSsml(responseText);
+		resp.setOutputSpeech(outputSpeech);
 
         return resp;
 	}
@@ -79,7 +91,7 @@ public class NYTPopularSpeechlet implements Speechlet {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
-        String outputText = "Welcome to N.Y.T.'s most popular list. Which section are you interested in?";
+        String outputText = "Welcome to N.Y.T.'s most popular list. You may ask for headlines from all the sections are specify a particular one?";
         String repromptText = "<speak>Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.</speak>";
 
         PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
