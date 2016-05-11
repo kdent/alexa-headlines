@@ -32,9 +32,9 @@ import com.amazon.speech.ui.SsmlOutputSpeech;
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  */
 
-public class NewsGuySpeechlet implements Speechlet {
+public class HeadlinesSpeechlet implements Speechlet {
 
-	private static final Logger log = Logger.getLogger(NewsGuySpeechlet.class);
+	private static final Logger log = Logger.getLogger(HeadlinesSpeechlet.class);
 	private static String newYorkTimesKey = null;
 
 	@Override
