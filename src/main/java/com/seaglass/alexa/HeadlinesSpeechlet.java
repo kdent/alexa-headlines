@@ -44,6 +44,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         Intent intent = request.getIntent();
         String listIntroText = null;
         String requestedSection = null;
+        DialogModel dm = new DialogModel();
 
         if (intent == null) {
         	throw new SpeechletException("Received a NULL intent");
@@ -54,6 +55,7 @@ public class HeadlinesSpeechlet implements Speechlet {
          * TODO: add built-in intents to the schema and re-upload.
          */
         String intentName = intent.getName();
+
         if (intentName.equals("MostPopularIntentAllSections")) {
         	listIntroText = "Here is the list of most popular articles:";
         } else if (intentName.equals("MostPopularIntentBySection")) {
