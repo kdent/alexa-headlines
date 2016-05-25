@@ -1,10 +1,7 @@
 {
   "intents": [
     {
-      "intent": "MostPopularIntentAllSections",
-    },
-    {
-      "intent": "MostPopularIntentBySection",
+      "intent": "StartList",
       "slots": [
         {
           "name": "Section",

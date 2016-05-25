@@ -1,14 +1,14 @@
-MostPopularIntentAllSections the most popular stories
-MostPopularIntentAllSections for the most popular stories
-MostPopularIntentAllSections what are the most popular stories
-MostPopularIntentAllSections what the most popular stories are
-MostPopularIntentAllSections get the most popular stories
+StartList the top stories
+StartList for the top stories
+StartList what are the top stories
+StartList what the top stories are
+StartList get the top stories
 
-MostPopularIntentBySection the most popular stories in {Section}
-MostPopularIntentBySection for the most popular stories in {Section}
-MostPopularIntentBySection what are the most popular stories in {Section}
-MostPopularIntentBySection what are the most popular {Section} stories
-MostPopularIntentBySection what the most popular stories are in {Section}
-MostPopularIntentBySection what the most popular {Section} stories are
-MostPopularIntentBySection get the most popular stories in {Section}
+StartList the top stories in {Section}
+StartList for the top stories in {Section}
+StartList what are the top stories in {Section}
+StartList what are the top {Section} stories
+StartList what the top stories are in {Section}
+StartList what the top {Section} stories are
+StartList get the top stories in {Section}
 

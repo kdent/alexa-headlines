@@ -3,8 +3,8 @@ package com.seaglass.alexa;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -40,25 +40,25 @@ public class HeadlinesSpeechlet implements Speechlet {
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
         log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-        SpeechletResponse resp = new SpeechletResponse();
         Intent intent = request.getIntent();
-        String listIntroText = null;
         String requestedSection = null;
-        DialogModel dm = new DialogModel();
+        DialogState dialogState = new DialogState();
+        dialogState.setNextItem((int) session.getAttribute("nextItem"));
+        dialogState.setRequestedSection((String) session.getAttribute("requestedSection"));
 
+        /*
+         * If for some reason there's no intent, we've got a fatal problem.
+         */
         if (intent == null) {
         	throw new SpeechletException("Received a NULL intent");
         }
 
         /* 
-         * Determine user's request intent.
-         * TODO: add built-in intents to the schema and re-upload.
+         * Determine the user's request.
          */
         String intentName = intent.getName();
 
-        if (intentName.equals("MostPopularIntentAllSections")) {
-        	listIntroText = "Here is the list of most popular articles:";
-        } else if (intentName.equals("MostPopularIntentBySection")) {
+        if (intentName.equals("StartList")) {
         	Slot section = intent.getSlot("Section");
         	if (section != null) {
         		requestedSection = section.getValue().toLowerCase();
@@ -66,7 +66,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         			requestedSection = null;
         		}
         	}
-        	listIntroText = "Here is the list ot most popular articles in the " + requestedSection + "section";
+        	dialogState.setRequestedSection(requestedSection);
         } else if (intentName.equals("AMAZON.HelpIntent")) {
         	// TODO: to be implemented
         } else {
@@ -74,31 +74,37 @@ public class HeadlinesSpeechlet implements Speechlet {
         }
 
         /*
-         * Retrieve requested information from the New York Times API and formulate
-         * the response output.
+         * Decide what action to take based on the current state.
          */
-    	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
-    	List<NewYorkTimesArticle> articleList = null;
-    	try {
-    		articleList = (requestedSection == null) ? apiClient.getArticleList() : apiClient.getArticleList(requestedSection);
-    		if (articleList == null) {
-    			throw new IOException();
-    		}
-		} catch (IOException e) {
-			log.error("Error retrieving article list from the New York Times API", e);
-			resp = ErrorResponse("Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.");
-		}
-    	String responseText = null;
-    	if (articleList.size() == 0) {
-    		responseText = "<speak>No articles were found.</speak>";
-    	} else {
-        	List<String> titles = articleList.subList(0, 4).stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
-    		responseText = LanguageGenerator.itemListResponse(listIntroText, titles);
-    	}
-		SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-		outputSpeech.setSsml(responseText);
-		resp.setOutputSpeech(outputSpeech);
+    	SpeechletResponse resp = new SpeechletResponse();
+        String responseText = null;
+        switch(dialogState.getCurrentNode()) {
+        case INIT:
+        	break;
+		case HELP:
+			break;
+		case IN_LIST:
+        	List<String> headlineList = null;
+        	try {
+        		headlineList = getHeadlines(requestedSection);
+        	} catch (IOException ex) {
+    			log.error("Error retrieving article list from the New York Times API", ex);
+    			resp.setShouldEndSession(true);
+    			responseText = "Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.";
+        	}
+        	responseText = LanguageGenerator.itemListResponse(headlineList, dialogState);
+			break;
+		case LAUNCH:
+			break;
+		case UNKNOWN:
+			break;
+		default:
+			break;
+        }
 
+    	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+    	outputSpeech.setSsml(responseText);
+		resp.setOutputSpeech(outputSpeech);
         return resp;
 	}
 
@@ -143,15 +149,15 @@ public class HeadlinesSpeechlet implements Speechlet {
         }
 	}
 
-	private SpeechletResponse ErrorResponse(String errorText) {
-		SpeechletResponse resp = new SpeechletResponse();
-		PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
-		outputSpeech.setText(errorText);
-		resp.setOutputSpeech(outputSpeech);
-		resp.setShouldEndSession(true);
-		return resp;
+	private List<String> getHeadlines(String requestedSection) throws IOException {
+		List<String> headlineList = new ArrayList<String>();
+    	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
+    	List<NewYorkTimesArticle> articleList = null;
+   		articleList = (requestedSection == null) ? apiClient.getArticleList() : apiClient.getArticleList(requestedSection);
+   		if (articleList == null) {
+   			throw new IOException();
+   		}
+		return headlineList;
 	}
-
-
 
 }
