@@ -36,6 +36,7 @@ public class HeadlinesSpeechlet implements Speechlet {
 
 	private static final Logger log = Logger.getLogger(HeadlinesSpeechlet.class);
 	private static String newYorkTimesKey = null;
+	private static int MAX_ITEMS = 3;
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
@@ -45,6 +46,8 @@ public class HeadlinesSpeechlet implements Speechlet {
         DialogState dialogState = new DialogState();
         dialogState.setNextItem((int) session.getAttribute("nextItem"));
         dialogState.setRequestedSection((String) session.getAttribute("requestedSection"));
+        dialogState.setCurrentNode((String) session.getAttribute("currentNode"));
+        DialogManager.Symbol currentSymbol = null;
 
         /*
          * If for some reason there's no intent, we've got a fatal problem.
@@ -67,8 +70,10 @@ public class HeadlinesSpeechlet implements Speechlet {
         		}
         	}
         	dialogState.setRequestedSection(requestedSection);
+        	currentSymbol = DialogManager.Symbol.RequestList;
         } else if (intentName.equals("AMAZON.HelpIntent")) {
         	// TODO: to be implemented
+        	currentSymbol = DialogManager.Symbol.Help;
         } else {
         	throw new SpeechletException("Unrecognized intent: " + intentName);
         }
@@ -76,12 +81,14 @@ public class HeadlinesSpeechlet implements Speechlet {
         /*
          * Decide what action to take based on the current state.
          */
+        dialogState.setCurrentNode(DialogManager.getNextState(dialogState.getCurrentNode(), currentSymbol, dialogState));
     	SpeechletResponse resp = new SpeechletResponse();
         String responseText = null;
         switch(dialogState.getCurrentNode()) {
         case INIT:
         	break;
 		case HELP:
+			responseText = LanguageGenerator.helpResponse();
 			break;
 		case IN_LIST:
         	List<String> headlineList = null;
@@ -92,7 +99,10 @@ public class HeadlinesSpeechlet implements Speechlet {
     			resp.setShouldEndSession(true);
     			responseText = "Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.";
         	}
-        	responseText = LanguageGenerator.itemListResponse(headlineList, dialogState);
+        	int nextItem = dialogState.getNextItem();
+        	boolean useIntro = (nextItem == 0) ? true : false;
+        	headlineList.subList(nextItem, nextItem + MAX_ITEMS);
+        	responseText = LanguageGenerator.itemListResponse(headlineList, useIntro);
 			break;
 		case LAUNCH:
 			break;
