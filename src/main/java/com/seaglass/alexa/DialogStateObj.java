@@ -4,11 +4,11 @@ import java.io.Serializable;
 
 import com.seaglass.alexa.DialogManager.Node;
 
-public class DialogState implements Serializable {
+public class DialogStateObj implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String requestedSection;
-	private int nextItem;
+	private int lastStartingItem;
 	private int listLength;
 	private DialogManager.Node currentNode;
 
@@ -18,11 +18,11 @@ public class DialogState implements Serializable {
 	public void setRequestedSection(String requestedSection) {
 		this.requestedSection = requestedSection;
 	}
-	public int getNextItem() {
-		return nextItem;
+	public int getLastStartingItem() {
+		return lastStartingItem;
 	}
-	public void setNextItem(int nextItem) {
-		this.nextItem = nextItem;
+	public void setLastStartingItem(int nextItem) {
+		this.lastStartingItem = nextItem;
 	}
 	public int getListLength() {
 		return listLength;

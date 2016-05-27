@@ -19,8 +19,8 @@ import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
-import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SsmlOutputSpeech;
+import com.seaglass.alexa.DialogManager.Node;
 
 /*
  * TODO:
@@ -36,17 +36,15 @@ public class HeadlinesSpeechlet implements Speechlet {
 
 	private static final Logger log = Logger.getLogger(HeadlinesSpeechlet.class);
 	private static String newYorkTimesKey = null;
-	private static int MAX_ITEMS = 3;
+	private static int MAX_CONSUMABLE_ITEMS = 3;
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
-        log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
+
+		log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
+
         Intent intent = request.getIntent();
-        String requestedSection = null;
-        DialogState dialogState = new DialogState();
-        dialogState.setNextItem((int) session.getAttribute("nextItem"));
-        dialogState.setRequestedSection((String) session.getAttribute("requestedSection"));
-        dialogState.setCurrentNode((String) session.getAttribute("currentNode"));
+        DialogStateObj dialogState = mapSessionToDialogState(session);
         DialogManager.Symbol currentSymbol = null;
 
         /*
@@ -57,14 +55,15 @@ public class HeadlinesSpeechlet implements Speechlet {
         }
 
         /* 
-         * Determine the user's request.
+         * Determine the user's request and map it to an input symbol for the DialogManager.
          */
         String intentName = intent.getName();
+        String requestedSection = null;
 
         if (intentName.equals("StartList")) {
-        	Slot section = intent.getSlot("Section");
-        	if (section != null) {
-        		requestedSection = section.getValue().toLowerCase();
+        	Slot sectionSlot = intent.getSlot("Section");
+        	if (sectionSlot != null) {
+        		requestedSection = sectionSlot.getValue().toLowerCase();
         		if ("all".equals(requestedSection) || "everything".equals(requestedSection)) {
         			requestedSection = null;
         		}
@@ -72,17 +71,21 @@ public class HeadlinesSpeechlet implements Speechlet {
         	dialogState.setRequestedSection(requestedSection);
         	currentSymbol = DialogManager.Symbol.RequestList;
         } else if (intentName.equals("AMAZON.HelpIntent")) {
-        	// TODO: to be implemented
         	currentSymbol = DialogManager.Symbol.Help;
         } else {
         	throw new SpeechletException("Unrecognized intent: " + intentName);
         }
 
         /*
-         * Decide what action to take based on the current state.
+         * Transition to next state based on current state and input symbol.
          */
         dialogState.setCurrentNode(DialogManager.getNextState(dialogState.getCurrentNode(), currentSymbol, dialogState));
+
+        /*
+         * Decide what action to take based on the updated state and prepare the response to send.
+         */
     	SpeechletResponse resp = new SpeechletResponse();
+    	resp.setShouldEndSession(false);
         String responseText = null;
         switch(dialogState.getCurrentNode()) {
         case INIT:
@@ -97,12 +100,13 @@ public class HeadlinesSpeechlet implements Speechlet {
         	} catch (IOException ex) {
     			log.error("Error retrieving article list from the New York Times API", ex);
     			resp.setShouldEndSession(true);
-    			responseText = "Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.";
+    			responseText = LanguageGenerator.apiError();
         	}
-        	int nextItem = dialogState.getNextItem();
+        	int nextItem = dialogState.getLastStartingItem() + MAX_CONSUMABLE_ITEMS;
+        	headlineList.subList(nextItem, nextItem + MAX_CONSUMABLE_ITEMS);
+        	boolean useContinuer = (nextItem > headlineList.size()) ? false : true;
         	boolean useIntro = (nextItem == 0) ? true : false;
-        	headlineList.subList(nextItem, nextItem + MAX_ITEMS);
-        	responseText = LanguageGenerator.itemListResponse(headlineList, useIntro);
+        	responseText = LanguageGenerator.itemListResponse(headlineList, requestedSection, useIntro, useContinuer);
 			break;
 		case LAUNCH:
 			break;
@@ -118,24 +122,39 @@ public class HeadlinesSpeechlet implements Speechlet {
         return resp;
 	}
 
+	private DialogStateObj mapSessionToDialogState(Session session) {
+		DialogStateObj dialogState = new DialogStateObj();
+		String obj = (String)session.getAttribute("lastStartingItem");
+		if (obj == null) {
+			dialogState.setLastStartingItem(0);
+		} else {
+	        dialogState.setLastStartingItem((Integer) Integer.parseInt(obj));			
+		}
+
+		obj = (String)session.getAttribute("requestedSection");
+        dialogState.setRequestedSection(obj);
+
+        obj = (String) session.getAttribute("currentNode");
+        if (obj == null) {
+            dialogState.setCurrentNode(Node.INIT);
+        } else {
+        	dialogState.setCurrentNode(obj);
+        }
+		return dialogState;
+	}
+
 	@Override
 	public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
-        String outputText = "Welcome to News Guy's most popular stories list. You may ask for headlines from all the sections or name a particular one.";
-        String repromptText = "<speak>Please choose a section like: Business <break time=\"0.2s\" />, Science <break time=\"0.2s\"/> or All Sections.</speak>";
-
+        String outputText = LanguageGenerator.welcomeMessage();
+ 
         PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
-        SsmlOutputSpeech repromptSpeech = new SsmlOutputSpeech();
         outputSpeech.setText(outputText);
-        repromptSpeech.setSsml(repromptText);
-        Reprompt repromptObj = new Reprompt();
-        repromptObj.setOutputSpeech(repromptSpeech);
-
+ 
         resp.setOutputSpeech(outputSpeech);
-        resp.setReprompt(repromptObj);
-
+ 
         return resp;
 	}
 

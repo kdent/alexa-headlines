@@ -4,6 +4,7 @@ StartList what are the top stories
 StartList what the top stories are
 StartList get the top stories
 
+StartList {Section}
 StartList the top stories in {Section}
 StartList for the top stories in {Section}
 StartList what are the top stories in {Section}

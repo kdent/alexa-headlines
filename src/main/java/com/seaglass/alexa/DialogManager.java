@@ -2,9 +2,9 @@ package com.seaglass.alexa;
 
 public class DialogManager {
 
-	public static Node getNextState(Node currentNode, Symbol currentSymbol, DialogState dialogState) {
+	public static Node getNextState(Node currentNode, Symbol currentSymbol, DialogStateObj dialogState) {
 		Node nextState = null;
-		if (dialogState.getNextItem() > dialogState.getListLength()) {
+		if (dialogState.getLastStartingItem() > dialogState.getListLength()) {
 			nextState = Node.INIT;
 		} else {
 			nextState = transitionTable[currentNode.ordinal()][currentSymbol.ordinal()];
@@ -43,11 +43,11 @@ public class DialogManager {
 	}
 
 	private static Node[][] transitionTable = {
-	    {Node.LAUNCH, Node.IN_LIST, Node.INIT, Node.INIT, Node.HELP},		// INIT
+	    {Node.LAUNCH, Node.IN_LIST, Node.INIT,    Node.INIT, Node.HELP},	// INIT
 	    {Node.LAUNCH, Node.IN_LIST, Node.IN_LIST, Node.INIT, Node.HELP},	// LAUNCH
 	    {Node.LAUNCH, Node.IN_LIST, Node.IN_LIST, Node.INIT, Node.HELP},	// IN_LIST
-	    {Node.INIT, Node.INIT, Node.INIT, Node.INIT, Node.INIT},			// HELP
-	    {Node.LAUNCH, Node.IN_LIST, Node.INIT, Node.INIT, Node.HELP}		// UNKNOWN
+	    {Node.INIT,   Node.INIT,    Node.INIT,    Node.INIT, Node.INIT},	// HELP
+	    {Node.LAUNCH, Node.IN_LIST, Node.INIT,    Node.INIT, Node.HELP}		// UNKNOWN
 	};
 
 }
