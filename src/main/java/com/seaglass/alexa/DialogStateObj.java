@@ -9,6 +9,7 @@ public class DialogStateObj implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String requestedSection;
 	private int lastStartingItem;
+	private int nextItem;
 	private int listLength;
 	private DialogManager.Node currentNode;
 
@@ -42,6 +43,17 @@ public class DialogStateObj implements Serializable {
 		} catch (IllegalArgumentException ex) {
 			currentNode = Node.UNKNOWN;
 		}
+	}
+	public void setNextItem(int nextItem) {
+		this.nextItem = nextItem;
+	}
+	public int getNextItem() {
+		return nextItem;
+	}
+
+	public String toString() {
+		return "{requestedSection: " + requestedSection + ", lastStartingItem: " + 
+				lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentNode: " + currentNode + "}";
 	}
 
 }

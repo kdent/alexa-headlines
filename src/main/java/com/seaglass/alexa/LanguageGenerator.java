@@ -10,16 +10,32 @@ public class LanguageGenerator {
 	private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in all sections? or What are the top stories in Technology?";
 	private static final String PROMPT_MSG = "Which section do you want to hear?";
 
-	public static String itemListResponse(List<String> itemList, String sectionName, boolean useIntro, boolean useContinuer) {
+	public static String itemListResponse(DialogStateObj dialogState, List<String> itemList) {
 		StringBuilder responseText = new StringBuilder("<speak>");
 
-		if (useIntro) {
+		if (itemList == null || itemList.size() < 1) {
+			responseText.append("no items</speak>");
+			return responseText.toString();
+		}
+
+		int nextItem = dialogState.getNextItem();
+    	int lastItem = nextItem + HeadlinesSpeechlet.MAX_CONSUMABLE_ITEMS;
+    	if (lastItem > itemList.size()) {
+    		lastItem = itemList.size();
+    	}
+    	List<String> deliveryList = itemList.subList(nextItem, nextItem + HeadlinesSpeechlet.MAX_CONSUMABLE_ITEMS);
+
+    	String sectionName = dialogState.getRequestedSection();
+    	boolean useContinuer = (lastItem > itemList.size()) ? false : true;
+    	boolean useIntro = (nextItem == 0) ? true : false;
+
+    	if (useIntro) {
 			responseText.append("Here's the list of top headlines");
 			if (sectionName != null && sectionName.length() > 0) {
 				responseText.append(" in " + sectionName);
 			}
 		}
-		for (String item : itemList) {
+		for (String item : deliveryList) {
 			responseText.append(" " + item + "<break time=\"0.5s\" />");
 		}
 
@@ -40,5 +56,14 @@ public class LanguageGenerator {
 
 	public static String apiError() {
 		return API_ERROR;
+	}
+
+	public static String emptyResponse(DialogStateObj dialogState) {
+		String resp = "Sorry, I didn't find any headlines";
+		String requestedSection = dialogState.getRequestedSection();
+		if (requestedSection != null && requestedSection.length() > 0) {
+			resp = resp + " in the " + requestedSection + " section";
+		}
+		return resp;
 	}
 }

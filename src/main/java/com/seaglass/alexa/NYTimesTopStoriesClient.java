@@ -9,6 +9,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.stream.JsonReader;
 
 
@@ -16,15 +19,13 @@ import com.google.gson.stream.JsonReader;
  * Hello world!
  *
  */
-public class NewYorkTimesPopularClient
+public class NYTimesTopStoriesClient
 {
-    private static String baseURL = "http://api.nytimes.com/svc/mostpopular/v2";
+    private static String baseURL = "http://api.nytimes.com/svc/topstories/v2";
+    private static Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
     private String apiKey = null;
-    private PopularityType mostType = PopularityType.mostshared;
-    private String section = "all-sections";
-    private int numDays = 1;
 
-    public NewYorkTimesPopularClient(String apiKey) {
+    public NYTimesTopStoriesClient(String apiKey) {
         this.apiKey = apiKey;
     }
 
@@ -33,30 +34,27 @@ public class NewYorkTimesPopularClient
     }
 
     public List<NewYorkTimesArticle> getArticleList(String section) throws IOException {
-    	this.section = section;
-    	return getArticleList();
-    }
-
-    public List<NewYorkTimesArticle> getArticleList() throws IOException {
         if (apiKey == null) {
+        	log.error("call to getArticleList without the API key being set");
             throw new RuntimeException("You must set the API key before connecting.");
         }
         List<NewYorkTimesArticle> articleList = null;
-        URL url = new URL(baseURL + "/" + mostType + "/" + section + "/" +
-            numDays + "?api-key=" + URLEncoder.encode(apiKey, "utf-8"));
+        URL url = new URL(baseURL + "/" + section + ".json?api-key=" + URLEncoder.encode(apiKey, "utf-8"));
+        log.info("requested top stories with URL: " + url);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         if (conn.getResponseCode() != 200) {
             throw new IOException(conn.getResponseMessage());
         }
 
         InputStream input = conn.getInputStream();
-        articleList = parsePopularArticleList(input);
+        log.info("retrieved top stories, content length: " + conn.getContentLength());
+        articleList = parseTopStoriesList(input);
         input.close();
         conn.disconnect();
         return articleList;
     }
 
-    public List<NewYorkTimesArticle> parsePopularArticleList(InputStream inputStream) throws IOException {
+    public List<NewYorkTimesArticle> parseTopStoriesList(InputStream inputStream) throws IOException {
     	List<NewYorkTimesArticle> articleList = new ArrayList<NewYorkTimesArticle>();
 
     	JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
@@ -99,10 +97,6 @@ public class NewYorkTimesPopularClient
     	}
     	jsonReader.close();
     	return articleList;
-    }
-
-    private enum PopularityType {
-        mostemailed, mostshared, mostviewed
     }
 
 }

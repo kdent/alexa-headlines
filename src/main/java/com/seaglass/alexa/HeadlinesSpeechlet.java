@@ -1,12 +1,15 @@
 package com.seaglass.alexa;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.slu.Slot;
@@ -34,17 +37,18 @@ import com.seaglass.alexa.DialogManager.Node;
 
 public class HeadlinesSpeechlet implements Speechlet {
 
-	private static final Logger log = Logger.getLogger(HeadlinesSpeechlet.class);
+	public static int MAX_CONSUMABLE_ITEMS = 3;
+	private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
 	private static String newYorkTimesKey = null;
-	private static int MAX_CONSUMABLE_ITEMS = 3;
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
 
 		log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
+		setAPIKey();
 
         Intent intent = request.getIntent();
-        DialogStateObj dialogState = mapSessionToDialogState(session);
+        DialogStateObj dialogState = updateDialogState(session);
         DialogManager.Symbol currentSymbol = null;
 
         /*
@@ -63,7 +67,10 @@ public class HeadlinesSpeechlet implements Speechlet {
         if (intentName.equals("StartList")) {
         	Slot sectionSlot = intent.getSlot("Section");
         	if (sectionSlot != null) {
-        		requestedSection = sectionSlot.getValue().toLowerCase();
+        		requestedSection = sectionSlot.getValue();
+        		if (requestedSection != null) {
+        				requestedSection = requestedSection.toLowerCase();
+        		}
         		if ("all".equals(requestedSection) || "everything".equals(requestedSection)) {
         			requestedSection = null;
         		}
@@ -102,11 +109,11 @@ public class HeadlinesSpeechlet implements Speechlet {
     			resp.setShouldEndSession(true);
     			responseText = LanguageGenerator.apiError();
         	}
-        	int nextItem = dialogState.getLastStartingItem() + MAX_CONSUMABLE_ITEMS;
-        	headlineList.subList(nextItem, nextItem + MAX_CONSUMABLE_ITEMS);
-        	boolean useContinuer = (nextItem > headlineList.size()) ? false : true;
-        	boolean useIntro = (nextItem == 0) ? true : false;
-        	responseText = LanguageGenerator.itemListResponse(headlineList, requestedSection, useIntro, useContinuer);
+        	if (headlineList.size() > 0) {
+        		responseText = LanguageGenerator.itemListResponse(dialogState, headlineList);
+        	} else {
+        		responseText = LanguageGenerator.emptyResponse(dialogState);
+        	}
 			break;
 		case LAUNCH:
 			break;
@@ -120,27 +127,6 @@ public class HeadlinesSpeechlet implements Speechlet {
     	outputSpeech.setSsml(responseText);
 		resp.setOutputSpeech(outputSpeech);
         return resp;
-	}
-
-	private DialogStateObj mapSessionToDialogState(Session session) {
-		DialogStateObj dialogState = new DialogStateObj();
-		String obj = (String)session.getAttribute("lastStartingItem");
-		if (obj == null) {
-			dialogState.setLastStartingItem(0);
-		} else {
-	        dialogState.setLastStartingItem((Integer) Integer.parseInt(obj));			
-		}
-
-		obj = (String)session.getAttribute("requestedSection");
-        dialogState.setRequestedSection(obj);
-
-        obj = (String) session.getAttribute("currentNode");
-        if (obj == null) {
-            dialogState.setCurrentNode(Node.INIT);
-        } else {
-        	dialogState.setCurrentNode(obj);
-        }
-		return dialogState;
 	}
 
 	@Override
@@ -166,27 +152,63 @@ public class HeadlinesSpeechlet implements Speechlet {
 	@Override
 	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
         log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
+        setAPIKey();
+	}
 
+	private DialogStateObj updateDialogState(Session session) {
+		DialogStateObj dialogState = new DialogStateObj();
+		String obj = (String)session.getAttribute("lastStartingItem");
+		if (obj == null) {
+			dialogState.setLastStartingItem(0);
+		} else {
+	        dialogState.setLastStartingItem((Integer) Integer.parseInt(obj));			
+		}
+		dialogState.setNextItem(dialogState.getLastStartingItem() + MAX_CONSUMABLE_ITEMS);
+
+		obj = (String)session.getAttribute("requestedSection");
+        dialogState.setRequestedSection(obj);
+
+        obj = (String) session.getAttribute("currentNode");
+        if (obj == null) {
+            dialogState.setCurrentNode(Node.INIT);
+        } else {
+        	dialogState.setCurrentNode(obj);
+        }
+        log.info("current dialog state: " + dialogState);
+		return dialogState;
+	}
+
+	private void setAPIKey() throws SpeechletException {
         if (newYorkTimesKey == null) {
-        	BufferedReader keyReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/nyt_key")));
+        	InputStream nytKeyFile = getClass().getResourceAsStream("/nyt_key");
         	try {
+            	if (nytKeyFile == null) {
+            		throw new FileNotFoundException("Missing NYT key file. Cannot access headlines API.");
+            	}
+            	BufferedReader keyReader = new BufferedReader(new InputStreamReader(nytKeyFile));
 				newYorkTimesKey = keyReader.readLine();
 	        	keyReader.close();
+				if (newYorkTimesKey == null || newYorkTimesKey.length() < 1) {
+					throw new IOException("NYT API Key is empty or null");
+				}
 			} catch (IOException e) {
 				log.error("Error reading New York Times key file", e);
+				throw new SpeechletException(e);
 			}
         }
 	}
 
 	private List<String> getHeadlines(String requestedSection) throws IOException {
-		List<String> headlineList = new ArrayList<String>();
-    	NewYorkTimesPopularClient apiClient = new NewYorkTimesPopularClient(newYorkTimesKey);
-    	List<NewYorkTimesArticle> articleList = null;
-   		articleList = (requestedSection == null) ? apiClient.getArticleList() : apiClient.getArticleList(requestedSection);
+		if (requestedSection == null || requestedSection.length() < 1) {
+			throw new RuntimeException("requestedSection paramater cannot be null or empty");
+		}
+    	NYTimesTopStoriesClient apiClient = new NYTimesTopStoriesClient(newYorkTimesKey);
+    	List<NewYorkTimesArticle> articleList = apiClient.getArticleList(requestedSection);
    		if (articleList == null) {
    			throw new IOException();
    		}
-		return headlineList;
+   		log.info("retrieved " + articleList.size() + " article headlines");
+		return articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
 	}
 
 }

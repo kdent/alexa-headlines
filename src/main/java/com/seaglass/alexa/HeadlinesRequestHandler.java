@@ -14,7 +14,6 @@ public class HeadlinesRequestHandler extends SpeechletRequestStreamHandler {
 		supportedApplicationIds.add("amzn1.echo-sdk-ams.app.ebe81acc-b22c-43a1-8f49-4d6677c75f60");
 	}
 
-
 	public HeadlinesRequestHandler() {
 		super(new HeadlinesSpeechlet(), supportedApplicationIds);
 	}
