@@ -23,14 +23,14 @@ public class LanguageGenerator {
     	if (lastItem > itemList.size()) {
     		lastItem = itemList.size();
     	}
-    	List<String> deliveryList = itemList.subList(nextItem, nextItem + HeadlinesSpeechlet.MAX_CONSUMABLE_ITEMS);
+    	List<String> deliveryList = itemList.subList(nextItem, lastItem);
 
     	String sectionName = dialogState.getRequestedSection();
     	boolean useContinuer = (lastItem > itemList.size()) ? false : true;
     	boolean useIntro = (nextItem == 0) ? true : false;
 
     	if (useIntro) {
-			responseText.append("Here's the list of top headlines");
+			responseText.append("Here's the list of top headlines<break time=\"0.75\" />");
 			if (sectionName != null && sectionName.length() > 0) {
 				responseText.append(" in " + sectionName);
 			}
@@ -43,6 +43,11 @@ public class LanguageGenerator {
 			responseText.append(" " + "Would you like to hear more?");
 		}
 		responseText.append("</speak>");
+
+		// Update the state.
+		dialogState.setLastStartingItem(nextItem);
+		dialogState.setNextItem(lastItem + 1);
+
 		return responseText.toString();
 	}
 

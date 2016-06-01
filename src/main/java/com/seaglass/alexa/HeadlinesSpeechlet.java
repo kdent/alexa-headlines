@@ -33,6 +33,13 @@ import com.seaglass.alexa.DialogManager.Node;
  *     - cache results from the NYT API (DynamoDB)
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
+ *       
+ *       
+ *       Do Yes intent
+ *       Test NYTimes client with forbiddent access
+ *       fix listLength not getting set
+ *       fix nextItem not being set (or being reset)
+ *       import list of sections to make sure that the section you get is on the list
  */
 
 public class HeadlinesSpeechlet implements Speechlet {
@@ -48,7 +55,10 @@ public class HeadlinesSpeechlet implements Speechlet {
 		setAPIKey();
 
         Intent intent = request.getIntent();
-        DialogStateObj dialogState = updateDialogState(session);
+        DialogStateObj dialogState = retrieveDialogState(session);
+        if (dialogState == null) {
+        	dialogState = new DialogStateObj();
+        }
         DialogManager.Symbol currentSymbol = null;
 
         /*
@@ -70,9 +80,6 @@ public class HeadlinesSpeechlet implements Speechlet {
         		requestedSection = sectionSlot.getValue();
         		if (requestedSection != null) {
         				requestedSection = requestedSection.toLowerCase();
-        		}
-        		if ("all".equals(requestedSection) || "everything".equals(requestedSection)) {
-        			requestedSection = null;
         		}
         	}
         	dialogState.setRequestedSection(requestedSection);
@@ -108,6 +115,7 @@ public class HeadlinesSpeechlet implements Speechlet {
     			log.error("Error retrieving article list from the New York Times API", ex);
     			resp.setShouldEndSession(true);
     			responseText = LanguageGenerator.apiError();
+    			break;
         	}
         	if (headlineList.size() > 0) {
         		responseText = LanguageGenerator.itemListResponse(dialogState, headlineList);
@@ -126,6 +134,7 @@ public class HeadlinesSpeechlet implements Speechlet {
     	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
     	outputSpeech.setSsml(responseText);
 		resp.setOutputSpeech(outputSpeech);
+		storeDialogState(session, dialogState);
         return resp;
 	}
 
@@ -155,27 +164,32 @@ public class HeadlinesSpeechlet implements Speechlet {
         setAPIKey();
 	}
 
-	private DialogStateObj updateDialogState(Session session) {
+	private DialogStateObj retrieveDialogState(Session session) {
 		DialogStateObj dialogState = new DialogStateObj();
-		String obj = (String)session.getAttribute("lastStartingItem");
-		if (obj == null) {
+		Integer lastStartingItem = (Integer) session.getAttribute("lastStartingItem");
+		if (lastStartingItem == null) {
 			dialogState.setLastStartingItem(0);
 		} else {
-	        dialogState.setLastStartingItem((Integer) Integer.parseInt(obj));			
+	        dialogState.setLastStartingItem(lastStartingItem);			
 		}
-		dialogState.setNextItem(dialogState.getLastStartingItem() + MAX_CONSUMABLE_ITEMS);
 
-		obj = (String)session.getAttribute("requestedSection");
-        dialogState.setRequestedSection(obj);
+		String requestedSection = (String) session.getAttribute("requestedSection");
+        dialogState.setRequestedSection(requestedSection);
 
-        obj = (String) session.getAttribute("currentNode");
-        if (obj == null) {
+        String currentNode = (String) session.getAttribute("currentNode");
+        if (currentNode == null) {
             dialogState.setCurrentNode(Node.INIT);
         } else {
-        	dialogState.setCurrentNode(obj);
+        	dialogState.setCurrentNode(currentNode);
         }
         log.info("current dialog state: " + dialogState);
 		return dialogState;
+	}
+
+	private void storeDialogState(Session session, DialogStateObj dialogState) {
+		session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
+		session.setAttribute("requestedSection", dialogState.getRequestedSection());
+		session.setAttribute("currentNode", dialogState.getCurrentNode());
 	}
 
 	private void setAPIKey() throws SpeechletException {

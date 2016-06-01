@@ -11,7 +11,7 @@ public class DialogStateObj implements Serializable {
 	private int lastStartingItem;
 	private int nextItem;
 	private int listLength;
-	private DialogManager.Node currentNode;
+	private DialogManager.Node currentNode = DialogManager.Node.INIT;
 
 	public String getRequestedSection() {
 		return requestedSection;
