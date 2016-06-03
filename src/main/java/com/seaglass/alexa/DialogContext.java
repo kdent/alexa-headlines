@@ -2,16 +2,16 @@ package com.seaglass.alexa;
 
 import java.io.Serializable;
 
-import com.seaglass.alexa.DialogManager.Node;
+import com.seaglass.alexa.DialogManager.State;
 
-public class DialogStateObj implements Serializable {
+public class DialogContext implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String requestedSection;
 	private int lastStartingItem;
 	private int nextItem;
 	private int listLength;
-	private DialogManager.Node currentNode = DialogManager.Node.INIT;
+	private DialogManager.State currentState = DialogManager.State.INIT;
 
 	public String getRequestedSection() {
 		return requestedSection;
@@ -31,17 +31,17 @@ public class DialogStateObj implements Serializable {
 	public void setListLength(int listLength) {
 		this.listLength = listLength;
 	}
-	public DialogManager.Node getCurrentNode() {
-		return currentNode;
+	public DialogManager.State getCurrentState() {
+		return currentState;
 	}
-	public void setCurrentNode(DialogManager.Node currentNode) {
-		this.currentNode = currentNode;
+	public void setCurrentNode(DialogManager.State currentNode) {
+		this.currentState = currentNode;
 	}
 	public void setCurrentNode(String nodeName) {
 		try {
-			currentNode = Node.valueOf(nodeName);
+			currentState = State.valueOf(nodeName);
 		} catch (IllegalArgumentException ex) {
-			currentNode = Node.UNKNOWN;
+			currentState = State.UNKNOWN;
 		}
 	}
 	public void setNextItem(int nextItem) {
@@ -53,7 +53,7 @@ public class DialogStateObj implements Serializable {
 
 	public String toString() {
 		return "{requestedSection: " + requestedSection + ", lastStartingItem: " + 
-				lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentNode: " + currentNode + "}";
+				lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentNode: " + currentState + "}";
 	}
 
 }

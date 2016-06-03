@@ -8,15 +8,15 @@ public class DialogManagerTest {
 
 	@Test
 	public void testSetState() {
-		DialogStateObj ds = new DialogStateObj();
+		DialogContext ds = new DialogContext();
 		ds.setCurrentNode("IN_LIST");
-		assertEquals(DialogManager.Node.IN_LIST, ds.getCurrentNode());
+		assertEquals(DialogManager.State.IN_LIST, ds.getCurrentState());
 	}
 
 	@Test
 	public void testSetInvalidState() {
-		DialogStateObj ds = new DialogStateObj();
+		DialogContext ds = new DialogContext();
 		ds.setCurrentNode("INVALID_STATE");
-		assertEquals(DialogManager.Node.UNKNOWN, ds.getCurrentNode());
+		assertEquals(DialogManager.State.UNKNOWN, ds.getCurrentState());
 	}
 }

@@ -2,10 +2,10 @@ package com.seaglass.alexa;
 
 public class DialogManager {
 
-	public static Node getNextState(Node currentNode, Symbol currentSymbol, DialogStateObj dialogState) {
-		Node nextState = null;
+	public static State getNextState(State currentNode, Symbol currentSymbol, DialogContext dialogState) {
+		State nextState = null;
 		if (dialogState.getLastStartingItem() > dialogState.getListLength()) {
-			nextState = Node.INIT;
+			nextState = State.INIT;
 		} else {
 			nextState = transitionTable[currentNode.ordinal()][currentSymbol.ordinal()];
 		}
@@ -26,7 +26,7 @@ public class DialogManager {
 		return symbol;
 	}
 
-	public enum Node {
+	public enum State {
 		INIT,
 		LAUNCH,
 		IN_LIST,
@@ -42,12 +42,12 @@ public class DialogManager {
 		Help
 	}
 
-	private static Node[][] transitionTable = {
-	    {Node.LAUNCH, Node.IN_LIST, Node.INIT,    Node.INIT, Node.HELP},	// INIT
-	    {Node.LAUNCH, Node.IN_LIST, Node.IN_LIST, Node.INIT, Node.HELP},	// LAUNCH
-	    {Node.LAUNCH, Node.IN_LIST, Node.IN_LIST, Node.INIT, Node.HELP},	// IN_LIST
-	    {Node.INIT,   Node.INIT,    Node.INIT,    Node.INIT, Node.INIT},	// HELP
-	    {Node.LAUNCH, Node.IN_LIST, Node.INIT,    Node.INIT, Node.HELP}		// UNKNOWN
+	private static State[][] transitionTable = {
+	    {State.LAUNCH, State.IN_LIST, State.INIT,    State.INIT, State.HELP},	// INIT
+	    {State.LAUNCH, State.IN_LIST, State.IN_LIST, State.INIT, State.HELP},	// LAUNCH
+	    {State.LAUNCH, State.IN_LIST, State.IN_LIST, State.INIT, State.HELP},	// IN_LIST
+	    {State.INIT,   State.INIT,    State.INIT,    State.INIT, State.INIT},	// HELP
+	    {State.LAUNCH, State.IN_LIST, State.INIT,    State.INIT, State.HELP}		// UNKNOWN
 	};
 
 }

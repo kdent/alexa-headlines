@@ -10,7 +10,7 @@ public class LanguageGenerator {
 	private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in all sections? or What are the top stories in Technology?";
 	private static final String PROMPT_MSG = "Which section do you want to hear?";
 
-	public static String itemListResponse(DialogStateObj dialogState, List<String> itemList) {
+	public static String itemListResponse(DialogContext dialogState, List<String> itemList) {
 		StringBuilder responseText = new StringBuilder("<speak>");
 
 		if (itemList == null || itemList.size() < 1) {
@@ -63,7 +63,7 @@ public class LanguageGenerator {
 		return API_ERROR;
 	}
 
-	public static String emptyResponse(DialogStateObj dialogState) {
+	public static String emptyResponse(DialogContext dialogState) {
 		String resp = "Sorry, I didn't find any headlines";
 		String requestedSection = dialogState.getRequestedSection();
 		if (requestedSection != null && requestedSection.length() > 0) {
