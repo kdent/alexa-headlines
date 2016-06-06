@@ -1,10 +1,6 @@
 package com.seaglass.alexa;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +16,9 @@ import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
+import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.DialogManager.State;
+import com.seaglass.alexa.exceptions.NytApiException;
 
 /*
  * TODO:
@@ -40,7 +38,6 @@ import com.seaglass.alexa.DialogManager.State;
 
 public class HeadlinesSpeechlet implements Speechlet {
 
-	public static int MAX_CONSUMABLE_ITEMS = 3;
 	private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
 	private static String newYorkTimesKey = null;
 
@@ -48,13 +45,25 @@ public class HeadlinesSpeechlet implements Speechlet {
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
 
 		log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-		setAPIKey();
+		try {
+			newYorkTimesKey = KeyReader.getAPIKey();
+		} catch (IOException ex) {
+			log.error(ex.getMessage());
+    		SpeechletResponse resp = new SpeechletResponse();
+			resp.setShouldEndSession(true);
+	    	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+	    	outputSpeech.setSsml(LanguageGenerator.apiError());
+			resp.setOutputSpeech(outputSpeech);
+			return resp;
+		}
 
         Intent intent = request.getIntent();
         DialogContext dialogContext = retrieveDialogContext(session);
         if (dialogContext == null) {
         	dialogContext = new DialogContext();
         }
+        log.info("retrieved dialog state: " + dialogContext);
+
         DialogManager.Symbol currentSymbol = null;
 
         /*
@@ -65,7 +74,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         }
 
         /* 
-         * Determine the user's request and map it to an input symbol for the DialogManager.
+         * Get user's intent and requested section if available.
          */
         String intentName = intent.getName();
         String requestedSection = null;
@@ -87,13 +96,23 @@ public class HeadlinesSpeechlet implements Speechlet {
         currentSymbol = DialogManager.getSymbol(intentName);
         if (currentSymbol == null)
         	throw new SpeechletException("Unrecognized intent: " + intentName);
-        dialogContext.setCurrentNode(DialogManager.getNextState(dialogContext.getCurrentState(), currentSymbol, dialogContext));
+        dialogContext.setCurrentState(DialogManager.getNextState(dialogContext.getCurrentState(), currentSymbol, dialogContext));
+        log.info("new dialog state: " + dialogContext);
 
         /*
          * Update the state and get the response to send.
          */
+    	SpeechletResponse resp = null;
+    	try {
+    		ResponseGenerator.generate(dialogContext, newYorkTimesKey);
+    	} catch (NytApiException ex) {
+    		resp = new SpeechletResponse();
+			resp.setShouldEndSession(true);
+	    	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+	    	outputSpeech.setSsml(LanguageGenerator.apiError());
+			resp.setOutputSpeech(outputSpeech);
+    	}
 		storeDialogContext(session, dialogContext);
-    	SpeechletResponse resp = ResponseGenerator.generate(dialogContext, newYorkTimesKey);
         return resp;
 	}
 
@@ -120,7 +139,11 @@ public class HeadlinesSpeechlet implements Speechlet {
 	@Override
 	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
         log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-        setAPIKey();
+        try {
+			newYorkTimesKey = KeyReader.getAPIKey();
+		} catch (IOException ex) {
+			log.error(ex.getMessage());
+		}
 	}
 
 	private DialogContext retrieveDialogContext(Session session) {
@@ -137,11 +160,10 @@ public class HeadlinesSpeechlet implements Speechlet {
 
         String currentNode = (String) session.getAttribute("currentNode");
         if (currentNode == null) {
-            dialogState.setCurrentNode(State.INIT);
+            dialogState.setCurrentState(State.INIT);
         } else {
-        	dialogState.setCurrentNode(currentNode);
+        	dialogState.setCurrentState(currentNode);
         }
-        log.info("current dialog state: " + dialogState);
 		return dialogState;
 	}
 
@@ -149,26 +171,6 @@ public class HeadlinesSpeechlet implements Speechlet {
 		session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
 		session.setAttribute("requestedSection", dialogState.getRequestedSection());
 		session.setAttribute("currentNode", dialogState.getCurrentState());
-	}
-
-	private void setAPIKey() throws SpeechletException {
-        if (newYorkTimesKey == null) {
-        	InputStream nytKeyFile = getClass().getResourceAsStream("/nyt_key");
-        	try {
-            	if (nytKeyFile == null) {
-            		throw new FileNotFoundException("Missing NYT key file. Cannot access headlines API.");
-            	}
-            	BufferedReader keyReader = new BufferedReader(new InputStreamReader(nytKeyFile));
-				newYorkTimesKey = keyReader.readLine();
-	        	keyReader.close();
-				if (newYorkTimesKey == null || newYorkTimesKey.length() < 1) {
-					throw new IOException("NYT API Key is empty or null");
-				}
-			} catch (IOException e) {
-				log.error("Error reading New York Times key file", e);
-				throw new SpeechletException(e);
-			}
-        }
 	}
 
 }

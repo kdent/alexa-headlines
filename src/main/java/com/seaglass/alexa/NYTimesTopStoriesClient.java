@@ -9,9 +9,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.stream.JsonReader;
 
 
@@ -22,7 +19,6 @@ import com.google.gson.stream.JsonReader;
 public class NYTimesTopStoriesClient
 {
     private static String baseURL = "http://api.nytimes.com/svc/topstories/v2";
-    private static Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
     private String apiKey = null;
 
     public NYTimesTopStoriesClient(String apiKey) {
@@ -35,19 +31,16 @@ public class NYTimesTopStoriesClient
 
     public List<NewYorkTimesArticle> getArticleList(String section) throws IOException {
         if (apiKey == null) {
-        	log.error("call to getArticleList without the API key being set");
             throw new RuntimeException("You must set the API key before connecting.");
         }
         List<NewYorkTimesArticle> articleList = null;
         URL url = new URL(baseURL + "/" + section + ".json?api-key=" + URLEncoder.encode(apiKey, "utf-8"));
-        log.info("requested top stories with URL: " + url);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         if (conn.getResponseCode() != 200) {
             throw new IOException(conn.getResponseMessage());
         }
 
         InputStream input = conn.getInputStream();
-        log.info("retrieved top stories, content length: " + conn.getContentLength());
         articleList = parseTopStoriesList(input);
         input.close();
         conn.disconnect();

@@ -9,46 +9,49 @@ import org.slf4j.LoggerFactory;
 
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.SsmlOutputSpeech;
+import com.seaglass.alexa.exceptions.NytApiException;
 
 public class ResponseGenerator {
+	private static Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
 
-	private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
-
-	public static SpeechletResponse generate(DialogContext dialogState, String newYorkTimesKey) {
+	public static SpeechletResponse generate(DialogContext dialogContext, String newYorkTimesKey) throws NytApiException {
 		SpeechletResponse resp = new SpeechletResponse();
     	resp.setShouldEndSession(false);
-    	String requestedSection = dialogState.getRequestedSection();
         String responseText = null;
-        switch(dialogState.getCurrentState()) {
+        switch(dialogContext.getCurrentState()) {
         case INIT:
-        	break;
+        	break;		// No response from INIT state.
 		case HELP:
 			responseText = LanguageGenerator.helpResponse();
 			break;
 		case IN_LIST:
         	List<String> headlineList = null;
+        	String requestedSection = dialogContext.getRequestedSection();
+			log.info("inside generate with IN_LIST");
         	try {
+        		log.info("about to call for headlines");
         		headlineList = getHeadlines(requestedSection, newYorkTimesKey);
+        		log.info("back with " + headlineList.size() + " items");
         	} catch (IOException ex) {
-    			log.error("Error retrieving article list from the New York Times API", ex);
-    			resp.setShouldEndSession(true);
-    			responseText = LanguageGenerator.apiError();
-    			break;
+    			throw new NytApiException(ex);
         	}
         	if (headlineList.size() > 0) {
-        		responseText = LanguageGenerator.itemListResponse(dialogState, headlineList);
+        		responseText = LanguageGenerator.itemListResponse(dialogContext, headlineList);
         	} else {
-        		responseText = LanguageGenerator.emptyResponse(dialogState);
+        		responseText = LanguageGenerator.emptyResponse(dialogContext);
         	}
 			break;
 		case LAUNCH:
 			break;
 		case UNKNOWN:
+			responseText = LanguageGenerator.generalError();
 			break;
 		default:
+			responseText = LanguageGenerator.generalError();
 			break;
         }
 
+        log.info("response will be " + responseText);
     	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
     	outputSpeech.setSsml(responseText);
 		resp.setOutputSpeech(outputSpeech);
@@ -63,7 +66,6 @@ public class ResponseGenerator {
    		if (articleList == null) {
    			throw new IOException();
    		}
-   		log.info("retrieved " + articleList.size() + " article headlines");
 		return articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
 	}
 

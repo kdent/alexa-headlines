@@ -34,10 +34,10 @@ public class DialogContext implements Serializable {
 	public DialogManager.State getCurrentState() {
 		return currentState;
 	}
-	public void setCurrentNode(DialogManager.State currentNode) {
+	public void setCurrentState(DialogManager.State currentNode) {
 		this.currentState = currentNode;
 	}
-	public void setCurrentNode(String nodeName) {
+	public void setCurrentState(String nodeName) {
 		try {
 			currentState = State.valueOf(nodeName);
 		} catch (IllegalArgumentException ex) {

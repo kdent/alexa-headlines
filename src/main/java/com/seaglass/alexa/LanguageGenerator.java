@@ -9,6 +9,7 @@ public class LanguageGenerator {
 	private static final String WELCOME_MSG = "With Headlines, you can get the top stories in the news by section or for all sections";
 	private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in all sections? or What are the top stories in Technology?";
 	private static final String PROMPT_MSG = "Which section do you want to hear?";
+	private static final String GENERAL_ERROR = "Sorry, I'm having a problem and can't help you right now.";
 
 	public static String itemListResponse(DialogContext dialogState, List<String> itemList) {
 		StringBuilder responseText = new StringBuilder("<speak>");
@@ -19,7 +20,7 @@ public class LanguageGenerator {
 		}
 
 		int nextItem = dialogState.getNextItem();
-    	int lastItem = nextItem + HeadlinesSpeechlet.MAX_CONSUMABLE_ITEMS;
+    	int lastItem = nextItem + HeadlinesProperties.MAX_CONSUMABLE_ITEMS;
     	if (lastItem > itemList.size()) {
     		lastItem = itemList.size();
     	}
@@ -52,15 +53,19 @@ public class LanguageGenerator {
 	}
 
 	public static String welcomeMessage() {
-		return WELCOME_MSG + " " + EXAMPLE_MSG + " " + PROMPT_MSG;
+		return "<speak>" + WELCOME_MSG + " " + EXAMPLE_MSG + " " + PROMPT_MSG + "</speak>";
 	}
 
 	public static String helpResponse() {
-		return HELP_MSG + " " + EXAMPLE_MSG;
+		return "<speak>" + HELP_MSG + " " + EXAMPLE_MSG + "</speak>";
 	}
 
 	public static String apiError() {
-		return API_ERROR;
+		return "<speak>" + API_ERROR + "</speak>";
+	}
+
+	public static String generalError() {
+		return "<speak>" + GENERAL_ERROR + "</speak>";
 	}
 
 	public static String emptyResponse(DialogContext dialogState) {
