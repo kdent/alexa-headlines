@@ -8,9 +8,13 @@ public class DialogManagerTest {
 
 	@Test
 	public void testSetState() {
-		DialogContext ds = new DialogContext();
-		ds.setCurrentState("IN_LIST");
-		assertEquals(DialogManager.State.IN_LIST, ds.getCurrentState());
+		DialogContext dialogContext = new DialogContext();
+		dialogContext.setCurrentState("IN_LIST");
+		assertEquals(DialogManager.State.IN_LIST, dialogContext.getCurrentState());
+	}
+
+	@Test
+	public void testRequestIntent() {
 	}
 
 	@Test

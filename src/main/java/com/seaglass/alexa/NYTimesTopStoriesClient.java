@@ -48,48 +48,48 @@ public class NYTimesTopStoriesClient
     }
 
     public List<NewYorkTimesArticle> parseTopStoriesList(InputStream inputStream) throws IOException {
-    	List<NewYorkTimesArticle> articleList = new ArrayList<NewYorkTimesArticle>();
+        List<NewYorkTimesArticle> articleList = new ArrayList<NewYorkTimesArticle>();
 
-    	JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
-    	jsonReader.beginObject();
+        JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
+        jsonReader.beginObject();
 
-    	// Find the results array.
-    	while (jsonReader.hasNext()) {
-    		String name = jsonReader.nextName();
-    		if (name.equals("results")) {
-    			jsonReader.beginArray();
-    			// For each item in the results array.
-    			while (jsonReader.hasNext()) {
-    				NewYorkTimesArticle article = new NewYorkTimesArticle();
-    				jsonReader.beginObject();
-    				while (jsonReader.hasNext()) {
-    					String attribute = jsonReader.nextName();
-    					if (attribute.equals("url")) {
-    						article.setUrlString(jsonReader.nextString());
-    					} else if (attribute.equals("section")) {
-    						article.setSection(jsonReader.nextString());
-    					} else if (attribute.equals("byline")) {
-    						article.setByline(jsonReader.nextString());
-    					} else if (attribute.equals("title")) {
-    						article.setTitle(jsonReader.nextString());
-    					} else if (attribute.equals("abstract")) {
-    						article.setAbstractText(jsonReader.nextString());
-    					} else if (attribute.equals("published_date")) {
-    						article.setPublishedDateString(jsonReader.nextString());
-    					} else {
-    						jsonReader.skipValue();
-    					}
-    				}
-    				jsonReader.endObject();
-    				articleList.add(article);
-    			}
-    			jsonReader.endArray();
-    		} else {
-    			jsonReader.skipValue();
-    		}
-    	}
-    	jsonReader.close();
-    	return articleList;
+        // Find the results array.
+        while (jsonReader.hasNext()) {
+            String name = jsonReader.nextName();
+            if (name.equals("results")) {
+                jsonReader.beginArray();
+                // For each item in the results array.
+                while (jsonReader.hasNext()) {
+                    NewYorkTimesArticle article = new NewYorkTimesArticle();
+                    jsonReader.beginObject();
+                    while (jsonReader.hasNext()) {
+                        String attribute = jsonReader.nextName();
+                        if (attribute.equals("url")) {
+                            article.setUrlString(jsonReader.nextString());
+                        } else if (attribute.equals("section")) {
+                            article.setSection(jsonReader.nextString());
+                        } else if (attribute.equals("byline")) {
+                            article.setByline(jsonReader.nextString());
+                        } else if (attribute.equals("title")) {
+                            article.setTitle(jsonReader.nextString());
+                        } else if (attribute.equals("abstract")) {
+                            article.setAbstractText(jsonReader.nextString());
+                        } else if (attribute.equals("published_date")) {
+                            article.setPublishedDateString(jsonReader.nextString());
+                        } else {
+                            jsonReader.skipValue();
+                        }
+                    }
+                    jsonReader.endObject();
+                    articleList.add(article);
+                }
+                jsonReader.endArray();
+            } else {
+                jsonReader.skipValue();
+            }
+        }
+        jsonReader.close();
+        return articleList;
     }
 
 }

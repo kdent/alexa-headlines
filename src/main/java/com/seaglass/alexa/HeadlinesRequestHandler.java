@@ -7,15 +7,15 @@ import com.amazon.speech.speechlet.lambda.SpeechletRequestStreamHandler;
 
 public class HeadlinesRequestHandler extends SpeechletRequestStreamHandler {
 
-	private static final Set<String> supportedApplicationIds;
+    private static final Set<String> supportedApplicationIds;
 
-	static {
-		supportedApplicationIds = new HashSet<String>();
-		supportedApplicationIds.add("amzn1.echo-sdk-ams.app.ebe81acc-b22c-43a1-8f49-4d6677c75f60");
-	}
+    static {
+        supportedApplicationIds = new HashSet<String>();
+        supportedApplicationIds.add("amzn1.echo-sdk-ams.app.ebe81acc-b22c-43a1-8f49-4d6677c75f60");
+    }
 
-	public HeadlinesRequestHandler() {
-		super(new HeadlinesSpeechlet(), supportedApplicationIds);
-	}
+    public HeadlinesRequestHandler() {
+        super(new HeadlinesSpeechlet(), supportedApplicationIds);
+    }
 
 }

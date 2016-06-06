@@ -1,6 +1,9 @@
 {
   "intents": [
     {
+      "intent": "Request"
+    },
+    {
       "intent": "StartList",
       "slots": [
         {

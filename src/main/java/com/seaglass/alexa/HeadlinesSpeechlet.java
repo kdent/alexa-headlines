@@ -15,7 +15,6 @@ import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
-import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.DialogManager.State;
 import com.seaglass.alexa.exceptions.NytApiException;
@@ -30,37 +29,38 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *       
  *       
- *       Test NYTimes client with forbidden access
+ *       Check character encoding on the headline text
  *       fix listLength not getting set
  *       fix nextItem not being set (or being reset)
  *       import list of sections to make sure that the section you get is on the list
+ *       implement the rest of the built-in intents
  */
 
 public class HeadlinesSpeechlet implements Speechlet {
 
-	private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
-	private static String newYorkTimesKey = null;
+    private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
+    private static String newYorkTimesKey = null;
 
-	@Override
-	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
+    @Override
+    public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
 
-		log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-		try {
-			newYorkTimesKey = KeyReader.getAPIKey();
-		} catch (IOException ex) {
-			log.error(ex.getMessage());
-    		SpeechletResponse resp = new SpeechletResponse();
-			resp.setShouldEndSession(true);
-	    	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-	    	outputSpeech.setSsml(LanguageGenerator.apiError());
-			resp.setOutputSpeech(outputSpeech);
-			return resp;
-		}
+        log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
+        try {
+            newYorkTimesKey = KeyReader.getAPIKey();
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+            SpeechletResponse resp = new SpeechletResponse();
+            resp.setShouldEndSession(true);
+            SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+            outputSpeech.setSsml(LanguageGenerator.apiError());
+            resp.setOutputSpeech(outputSpeech);
+            return resp;
+        }
 
         Intent intent = request.getIntent();
         DialogContext dialogContext = retrieveDialogContext(session);
         if (dialogContext == null) {
-        	dialogContext = new DialogContext();
+            dialogContext = new DialogContext();
         }
         log.info("retrieved dialog state: " + dialogContext);
 
@@ -70,7 +70,7 @@ public class HeadlinesSpeechlet implements Speechlet {
          * If for some reason there's no intent, we've got a fatal problem.
          */
         if (intent == null) {
-        	throw new SpeechletException("Received a NULL intent");
+            throw new SpeechletException("Received a NULL intent");
         }
 
         /* 
@@ -80,14 +80,14 @@ public class HeadlinesSpeechlet implements Speechlet {
         String requestedSection = null;
 
         if (intentName.equals("StartList")) {
-        	Slot sectionSlot = intent.getSlot("Section");
-        	if (sectionSlot != null) {
-        		requestedSection = sectionSlot.getValue();
-        		if (requestedSection != null) {
-        				requestedSection = requestedSection.toLowerCase();
-        		}
-        	}
-        	dialogContext.setRequestedSection(requestedSection);
+            Slot sectionSlot = intent.getSlot("Section");
+            if (sectionSlot != null) {
+                requestedSection = sectionSlot.getValue();
+                if (requestedSection != null) {
+                        requestedSection = requestedSection.toLowerCase();
+                }
+            }
+            dialogContext.setRequestedSection(requestedSection);
         }
 
         /*
@@ -95,82 +95,84 @@ public class HeadlinesSpeechlet implements Speechlet {
          */
         currentSymbol = DialogManager.getSymbol(intentName);
         if (currentSymbol == null)
-        	throw new SpeechletException("Unrecognized intent: " + intentName);
+            throw new SpeechletException("Unrecognized intent: " + intentName);
         dialogContext.setCurrentState(DialogManager.getNextState(dialogContext.getCurrentState(), currentSymbol, dialogContext));
         log.info("new dialog state: " + dialogContext);
 
         /*
          * Update the state and get the response to send.
          */
-    	SpeechletResponse resp = null;
-    	try {
-    		ResponseGenerator.generate(dialogContext, newYorkTimesKey);
-    	} catch (NytApiException ex) {
-    		resp = new SpeechletResponse();
-			resp.setShouldEndSession(true);
-	    	SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-	    	outputSpeech.setSsml(LanguageGenerator.apiError());
-			resp.setOutputSpeech(outputSpeech);
-    	}
-		storeDialogContext(session, dialogContext);
+        SpeechletResponse resp = null;
+        try {
+            resp = ResponseGenerator.generate(dialogContext, newYorkTimesKey);
+        } catch (NytApiException ex) {
+            throw new SpeechletException(ex);
+//            resp = new SpeechletResponse();
+//            resp.setShouldEndSession(true);
+//            SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+//            outputSpeech.setSsml(LanguageGenerator.apiError());
+//            resp.setOutputSpeech(outputSpeech);
+        }
+        storeDialogContext(session, dialogContext);
         return resp;
-	}
+    }
 
-	@Override
-	public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
+    @Override
+    public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         SpeechletResponse resp = new SpeechletResponse();
 
         String outputText = LanguageGenerator.welcomeMessage();
  
-        PlainTextOutputSpeech outputSpeech = new PlainTextOutputSpeech();
-        outputSpeech.setText(outputText);
+        SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+        outputSpeech.setSsml(outputText);
  
+        resp.setShouldEndSession(false);
         resp.setOutputSpeech(outputSpeech);
  
         return resp;
-	}
+    }
 
-	@Override
-	public void onSessionEnded(SessionEndedRequest request, Session session) throws SpeechletException {
+    @Override
+    public void onSessionEnded(SessionEndedRequest request, Session session) throws SpeechletException {
         log.info("onSessionEnded requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-	}
+    }
 
-	@Override
-	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
+    @Override
+    public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
         log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
         try {
-			newYorkTimesKey = KeyReader.getAPIKey();
-		} catch (IOException ex) {
-			log.error(ex.getMessage());
-		}
-	}
+            newYorkTimesKey = KeyReader.getAPIKey();
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+        }
+    }
 
-	private DialogContext retrieveDialogContext(Session session) {
-		DialogContext dialogState = new DialogContext();
-		Integer lastStartingItem = (Integer) session.getAttribute("lastStartingItem");
-		if (lastStartingItem == null) {
-			dialogState.setLastStartingItem(0);
-		} else {
-	        dialogState.setLastStartingItem(lastStartingItem);			
-		}
+    private DialogContext retrieveDialogContext(Session session) {
+        DialogContext dialogState = new DialogContext();
+        Integer lastStartingItem = (Integer) session.getAttribute("lastStartingItem");
+        if (lastStartingItem == null) {
+            dialogState.setLastStartingItem(0);
+        } else {
+            dialogState.setLastStartingItem(lastStartingItem);            
+        }
 
-		String requestedSection = (String) session.getAttribute("requestedSection");
+        String requestedSection = (String) session.getAttribute("requestedSection");
         dialogState.setRequestedSection(requestedSection);
 
         String currentNode = (String) session.getAttribute("currentNode");
         if (currentNode == null) {
             dialogState.setCurrentState(State.INIT);
         } else {
-        	dialogState.setCurrentState(currentNode);
+            dialogState.setCurrentState(currentNode);
         }
-		return dialogState;
-	}
+        return dialogState;
+    }
 
-	private void storeDialogContext(Session session, DialogContext dialogState) {
-		session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
-		session.setAttribute("requestedSection", dialogState.getRequestedSection());
-		session.setAttribute("currentNode", dialogState.getCurrentState());
-	}
+    private void storeDialogContext(Session session, DialogContext dialogState) {
+        session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
+        session.setAttribute("requestedSection", dialogState.getRequestedSection());
+        session.setAttribute("currentNode", dialogState.getCurrentState());
+    }
 
 }

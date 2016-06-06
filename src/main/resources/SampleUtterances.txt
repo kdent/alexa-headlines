@@ -1,8 +1,8 @@
-StartList the top stories
-StartList for the top stories
-StartList what are the top stories
-StartList what the top stories are
-StartList get the top stories
+Request the top stories
+Request for the top stories
+Request what are the top stories
+Request what the top stories are
+Request get the top stories
 
 StartList {Section}
 StartList the top stories in {Section}
