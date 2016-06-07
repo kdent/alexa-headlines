@@ -24,7 +24,6 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *
- *       implement the rest of the built-in intents
  *     - include a card in the response (with article summaries)
  */
 
@@ -37,25 +36,20 @@ public class HeadlinesSpeechlet implements Speechlet {
 
         log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
 
-        Intent intent = request.getIntent();
+        /*
+         * Get previously stored attributes from the session info.
+         */
         DialogContext dialogContext = retrieveDialogContext(session);
         if (dialogContext == null) {
             dialogContext = new DialogContext();
         }
         log.info("retrieved dialog context: " + dialogContext);
 
-        DialogManager.Symbol currentSymbol = null;
-
-        /*
-         * If for some reason there's no intent, there is a fatal problem.
-         */
-        if (intent == null) {
-            throw new SpeechletException("Received a NULL intent");
-        }
-
         /* 
-         * Get user's intent and requested section if available.
+         * Get user's intent and requested section if available. Also, reset list pointers depending on the
+         * requested intent.
          */
+        Intent intent = request.getIntent();
         String intentName = intent.getName();
         String requestedSection = null;
 
@@ -89,14 +83,14 @@ public class HeadlinesSpeechlet implements Speechlet {
         /*
          * Transition to next state based on current state and input symbol.
          */
-        currentSymbol = DialogManager.getSymbol(intentName);
+        DialogManager.Symbol currentSymbol = DialogManager.getSymbol(intentName);
         if (currentSymbol == null)
             throw new SpeechletException("Unrecognized intent: " + intentName);
         dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, currentSymbol));
         log.info("new dialog context: " + dialogContext);
 
         /*
-         * Update the state and get the response to send.
+         * Get the response to send based on the current state.
          */
         SpeechletResponse resp = null;
         try {

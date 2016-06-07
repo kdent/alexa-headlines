@@ -84,6 +84,6 @@ public class LanguageGenerator {
     }
 
     public static String unknownSectionError() {
-        return "<speak>" + UNKNOWN_SECTION_ERROR + "</speak>";
+        return "<speak>" + UNKNOWN_SECTION_ERROR + " " + PROMPT_MSG + "</speak>";
     }
 }
