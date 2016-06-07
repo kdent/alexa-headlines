@@ -51,11 +51,11 @@ public class DialogManager {
 
     private static State[][] transitionTable = {
         // Launch      RequestList    StartList      Yes            No          Help
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.INIT,    State.END, State.HELP},    // INIT
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.IN_LIST, State.END, State.HELP},    // LAUNCH
+        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // INIT
+        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // LAUNCH
         {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // REQUEST
         {State.LAUNCH, State.REQUEST, State.IN_LIST, State.IN_LIST, State.END, State.HELP},    // IN_LIST
-        {State.INIT,   State.REQUEST, State.IN_LIST, State.INIT,    State.END, State.INIT},    // HELP
+        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.INIT},    // HELP
         {State.LAUNCH, State.REQUEST, State.IN_LIST, State.INIT,    State.END, State.HELP}     // END
     };
 

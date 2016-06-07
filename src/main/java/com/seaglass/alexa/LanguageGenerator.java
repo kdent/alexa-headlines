@@ -59,7 +59,7 @@ public class LanguageGenerator {
     }
 
     public static String helpResponse() {
-        return "<speak>" + HELP_MSG + " " + EXAMPLE_MSG + "</speak>";
+        return "<speak>" + HELP_MSG + " " + EXAMPLE_MSG + " " + PROMPT_MSG + "</speak>";
     }
 
     public static String apiError() {
