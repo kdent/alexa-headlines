@@ -26,8 +26,7 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *     - cache results from the NYT API (DynamoDB)
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
- *       
- *       if a new section is introduced, reset the counters
+ *
  *       check what happens on a speechlet exception. if it's reasonable do that instead of custom response
  *       see if you can store the DialogContext object and retrieve it
  *       import list of sections to make sure that the section you get is on the list
@@ -83,6 +82,12 @@ public class HeadlinesSpeechlet implements Speechlet {
                 requestedSection = sectionSlot.getValue();
                 if (requestedSection != null) {
                         requestedSection = requestedSection.toLowerCase();
+                        String contextRequestedSection = dialogContext.getRequestedSection();
+                        // If someone asks for a new section, reset the list pointer to the top of the list.
+                        if (contextRequestedSection != null && (! contextRequestedSection.equals(requestedSection))) {
+                            dialogContext.setNextItem(0);
+                            dialogContext.setLastStartingItem(0);
+                        }
                 }
             }
             dialogContext.setRequestedSection(requestedSection);
