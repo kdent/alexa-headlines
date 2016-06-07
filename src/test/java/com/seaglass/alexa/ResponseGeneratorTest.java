@@ -33,7 +33,16 @@ public class ResponseGeneratorTest {
 	}
 
 	@Test
-	public void testListRequest() throws NytApiException, IOException {
+	public void testRequestList() throws NytApiException, IOException {
+	    DialogContext dialogContext = new DialogContext();
+	    dialogContext.setCurrentState("REQUEST");
+	    SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+	    SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+	    assertEquals(LanguageGenerator.askSection(), speech.getSsml());
+	}
+
+	@Test
+	public void testInList() throws NytApiException, IOException {
 
 		DialogContext dialogContext = new DialogContext();
 		dialogContext.setCurrentState("IN_LIST");

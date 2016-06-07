@@ -4,23 +4,22 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.seaglass.alexa.DialogManager.Symbol;
+
 public class DialogManagerTest {
 
 	@Test
-	public void testSetState() {
-		DialogContext dialogContext = new DialogContext();
-		dialogContext.setCurrentState("IN_LIST");
-		assertEquals(DialogManager.State.IN_LIST, dialogContext.getCurrentState());
-	}
-
-	@Test
 	public void testRequestIntent() {
+	    Symbol symbol = DialogManager.getSymbol("Request");
+	    assertEquals(Symbol.RequestList, symbol);
 	}
 
 	@Test
-	public void testSetInvalidState() {
-		DialogContext ds = new DialogContext();
-		ds.setCurrentState("INVALID_STATE");
-		assertEquals(DialogManager.State.UNKNOWN, ds.getCurrentState());
+	public void testRequestList() {
+	    DialogContext dialogContext = new DialogContext();
+	    dialogContext.setCurrentState("INIT");
+	    DialogManager.State nextState = DialogManager.getNextState(DialogManager.State.IN_LIST, Symbol.RequestList, dialogContext);
+	    assertEquals(DialogManager.State.REQUEST, nextState);
 	}
+
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class LanguageGenerator {
 
-    private static final String HELP_MSG = "Headlines lists the top news stories.";
+    private static final String HELP_MSG = "Headlines lists the top news stories. Data is provided by the The New York Times.";
     private static final String API_ERROR = "Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.";
     private static final String WELCOME_MSG = "With Headlines, you get headlines for the top stories in the news";
     private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in <break time=\"0.1s\"/>Technology? Or what are the top stories in <break time=\"0.1s\"/>business";
@@ -21,13 +21,13 @@ public class LanguageGenerator {
 
         int nextItem = dialogState.getNextItem();
         int lastItem = nextItem + HeadlinesProperties.MAX_CONSUMABLE_ITEMS;
-        if (lastItem > itemList.size()) {
+        if (lastItem >= itemList.size()) {
             lastItem = itemList.size();
         }
         List<String> deliveryList = itemList.subList(nextItem, lastItem);
 
         String sectionName = dialogState.getRequestedSection();
-        boolean useContinuer = (lastItem > itemList.size()) ? false : true;
+        boolean useContinuer = (lastItem >= (itemList.size() - 1)) ? false : true;
         boolean useIntro = (nextItem == 0) ? true : false;
 
         if (useIntro) {
@@ -48,7 +48,7 @@ public class LanguageGenerator {
 
         // Update the state.
         dialogState.setLastStartingItem(nextItem);
-        dialogState.setNextItem(lastItem + 1);
+        dialogState.setNextItem(lastItem);
 
         return responseText.toString();
     }

@@ -8,6 +8,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.gson.stream.JsonReader;
 
@@ -20,6 +22,7 @@ public class NYTimesTopStoriesClient
 {
     private static String baseURL = "http://api.nytimes.com/svc/topstories/v2";
     private String apiKey = null;
+    private static Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
 
     public NYTimesTopStoriesClient(String apiKey) {
         this.apiKey = apiKey;
@@ -71,7 +74,7 @@ public class NYTimesTopStoriesClient
                         } else if (attribute.equals("byline")) {
                             article.setByline(jsonReader.nextString());
                         } else if (attribute.equals("title")) {
-                            article.setTitle(jsonReader.nextString());
+                            article.setTitle(replaceUnicodeEscapes(jsonReader.nextString()));
                         } else if (attribute.equals("abstract")) {
                             article.setAbstractText(jsonReader.nextString());
                         } else if (attribute.equals("published_date")) {
@@ -90,6 +93,17 @@ public class NYTimesTopStoriesClient
         }
         jsonReader.close();
         return articleList;
+    }
+
+    public static String replaceUnicodeEscapes(String origString) {
+        Matcher m = p.matcher(origString);
+        StringBuffer buf = new StringBuffer(origString.length());
+        while (m.find()) {
+            String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
+            m.appendReplacement(buf, Matcher.quoteReplacement(ch));
+        }
+        m.appendTail(buf);
+        return buf.toString();
     }
 
 }

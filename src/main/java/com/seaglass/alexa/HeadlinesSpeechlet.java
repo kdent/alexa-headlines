@@ -23,15 +23,13 @@ import com.seaglass.alexa.exceptions.NytApiException;
  * TODO:
  *     - implement the built-in intents
  *     - include a card in the response (with article summaries)
- *     - change to 3 at a time and ask user about continuing or not
  *     - cache results from the NYT API (DynamoDB)
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *       
- *       
- *       Check character encoding on the headline text
- *       fix listLength not getting set
- *       fix nextItem not being set (or being reset)
+ *       if a new section is introduced, reset the counters
+ *       check what happens on a speechlet exception. if it's reasonable do that instead of custom response
+ *       see if you can store the DialogContext object and retrieve it
  *       import list of sections to make sure that the section you get is on the list
  *       implement the rest of the built-in intents
  */
@@ -62,7 +60,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         if (dialogContext == null) {
             dialogContext = new DialogContext();
         }
-        log.info("retrieved dialog state: " + dialogContext);
+        log.info("retrieved dialog context: " + dialogContext);
 
         DialogManager.Symbol currentSymbol = null;
 
@@ -97,7 +95,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         if (currentSymbol == null)
             throw new SpeechletException("Unrecognized intent: " + intentName);
         dialogContext.setCurrentState(DialogManager.getNextState(dialogContext.getCurrentState(), currentSymbol, dialogContext));
-        log.info("new dialog state: " + dialogContext);
+        log.info("new dialog context: " + dialogContext);
 
         /*
          * Update the state and get the response to send.
@@ -113,6 +111,8 @@ public class HeadlinesSpeechlet implements Speechlet {
 //            outputSpeech.setSsml(LanguageGenerator.apiError());
 //            resp.setOutputSpeech(outputSpeech);
         }
+
+        log.info("storing dialog context: " + dialogContext);
         storeDialogContext(session, dialogContext);
         return resp;
     }
@@ -157,10 +157,24 @@ public class HeadlinesSpeechlet implements Speechlet {
             dialogState.setLastStartingItem(lastStartingItem);            
         }
 
+        Integer nextItem = (Integer) session.getAttribute("nextItem");
+        if (nextItem == null) {
+            dialogState.setNextItem(0);
+        } else {
+            dialogState.setNextItem(nextItem);
+        }
+
+        Integer listLength = (Integer) session.getAttribute("listLength");
+        if (listLength == null) {
+            dialogState.setListLength(0);
+        } else {
+            dialogState.setListLength(listLength);
+        }
+
         String requestedSection = (String) session.getAttribute("requestedSection");
         dialogState.setRequestedSection(requestedSection);
 
-        String currentNode = (String) session.getAttribute("currentNode");
+        String currentNode = (String) session.getAttribute("currentState");
         if (currentNode == null) {
             dialogState.setCurrentState(State.INIT);
         } else {
@@ -171,8 +185,10 @@ public class HeadlinesSpeechlet implements Speechlet {
 
     private void storeDialogContext(Session session, DialogContext dialogState) {
         session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
+        session.setAttribute("nextItem", dialogState.getNextItem());
+        session.setAttribute("listLength", dialogState.getListLength());
         session.setAttribute("requestedSection", dialogState.getRequestedSection());
-        session.setAttribute("currentNode", dialogState.getCurrentState());
+        session.setAttribute("currentState", dialogState.getCurrentState());
     }
 
 }

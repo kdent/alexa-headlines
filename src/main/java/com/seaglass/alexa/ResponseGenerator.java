@@ -4,36 +4,33 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.exceptions.NytApiException;
 
 public class ResponseGenerator {
-    private static Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
 
     public static SpeechletResponse generate(DialogContext dialogContext, String newYorkTimesKey) throws NytApiException {
         SpeechletResponse resp = new SpeechletResponse();
-        resp.setShouldEndSession(false);
         String responseText = null;
         switch(dialogContext.getCurrentState()) {
         case INIT:
+            resp.setShouldEndSession(true);
             break;        // No response from INIT state.
         case HELP:
             responseText = LanguageGenerator.helpResponse();
+            resp.setShouldEndSession(true);
             break;
         case REQUEST:
             responseText = LanguageGenerator.askSection();
+            resp.setShouldEndSession(false);
+            break;
         case IN_LIST:
             List<String> headlineList = null;
             String requestedSection = dialogContext.getRequestedSection();
-            log.info("inside generate with IN_LIST");
             try {
-                log.info("about to call for headlines");
                 headlineList = getHeadlines(requestedSection, newYorkTimesKey);
-                log.info("back with " + headlineList.size() + " items");
+                dialogContext.setListLength(headlineList.size());
             } catch (IOException ex) {
                 throw new NytApiException(ex);
             }
@@ -42,18 +39,24 @@ public class ResponseGenerator {
             } else {
                 responseText = LanguageGenerator.emptyResponse(dialogContext);
             }
+            // Check that the list has completed.
+            if (dialogContext.getNextItem() != 0 && (dialogContext.getNextItem() >= dialogContext.getListLength())) {
+                resp.setShouldEndSession(true);
+            } else {
+                resp.setShouldEndSession(false);
+            }
             break;
         case LAUNCH:
+            resp.setShouldEndSession(false);
             break;
-        case UNKNOWN:
-            responseText = LanguageGenerator.generalError();
+        case END:
+            resp.setShouldEndSession(true);
             break;
         default:
             responseText = LanguageGenerator.generalError();
             break;
         }
 
-        log.info("response will be " + responseText);
         SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
         outputSpeech.setSsml(responseText);
         resp.setOutputSpeech(outputSpeech);

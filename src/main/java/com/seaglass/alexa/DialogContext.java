@@ -34,14 +34,14 @@ public class DialogContext implements Serializable {
     public DialogManager.State getCurrentState() {
         return currentState;
     }
-    public void setCurrentState(DialogManager.State currentNode) {
-        this.currentState = currentNode;
+    public void setCurrentState(DialogManager.State currentState) {
+        this.currentState = currentState;
     }
-    public void setCurrentState(String nodeName) {
+    public void setCurrentState(String stateName) {
         try {
-            currentState = State.valueOf(nodeName);
+            currentState = State.valueOf(stateName);
         } catch (IllegalArgumentException ex) {
-            currentState = State.UNKNOWN;
+            currentState = State.END;
         }
     }
     public void setNextItem(int nextItem) {
@@ -53,7 +53,7 @@ public class DialogContext implements Serializable {
 
     public String toString() {
         return "{requestedSection: " + requestedSection + ", lastStartingItem: " + 
-                lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentNode: " + currentState + "}";
+                lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentState: " + currentState + "}";
     }
 
 }

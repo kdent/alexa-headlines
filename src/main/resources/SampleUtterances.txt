@@ -13,3 +13,4 @@ StartList what the top stories are in {Section}
 StartList what the top {Section} stories are
 StartList get the top stories in {Section}
 
+StartList {Section}
