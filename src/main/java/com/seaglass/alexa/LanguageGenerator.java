@@ -5,7 +5,7 @@ import java.util.List;
 public class LanguageGenerator {
 
     private static final String HELP_MSG = "Headlines lists the top news stories. Data is provided by the The New York Times.";
-    private static final String API_ERROR = "Sorry, I had a problem trying to get the list from the New York Times site. Please try again later.";
+    private static final String API_ERROR = "Sorry, I had a problem trying to get the list. Please try again later.";
     private static final String WELCOME_MSG = "With Headlines, you get headlines for the top stories in the news";
     private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in <break time=\"0.1s\"/>Technology? Or what are the top stories in <break time=\"0.1s\"/>business";
     private static final String PROMPT_MSG = "Which section do you want to hear?";

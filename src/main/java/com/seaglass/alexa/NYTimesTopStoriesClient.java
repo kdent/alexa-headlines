@@ -8,8 +8,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.google.gson.stream.JsonReader;
 
@@ -22,7 +20,6 @@ public class NYTimesTopStoriesClient
 {
     private static String baseURL = "http://api.nytimes.com/svc/topstories/v2";
     private String apiKey = null;
-    private static Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
 
     public NYTimesTopStoriesClient(String apiKey) {
         this.apiKey = apiKey;
@@ -96,14 +93,9 @@ public class NYTimesTopStoriesClient
     }
 
     public static String replaceUnicodeEscapes(String origString) {
-        Matcher m = p.matcher(origString);
-        StringBuffer buf = new StringBuffer(origString.length());
-        while (m.find()) {
-            String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
-            m.appendReplacement(buf, Matcher.quoteReplacement(ch));
-        }
-        m.appendTail(buf);
-        return buf.toString();
+        origString = origString.replaceAll("\\\\u2014", "-").replaceAll("\\\\u2018", "'").
+            replaceAll("\\\\u2019", "'").replaceAll("\\\\u201c", "\"").replaceAll("\\\\u201d", "\"");
+        return origString;
     }
 
 }

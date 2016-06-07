@@ -27,7 +27,6 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *
- *       see if you can store the DialogContext object and retrieve it
  *       import list of sections to make sure that the section you get is on the list
  *       implement the rest of the built-in intents
  */
@@ -143,46 +142,46 @@ public class HeadlinesSpeechlet implements Speechlet {
     }
 
     private DialogContext retrieveDialogContext(Session session) {
-        DialogContext dialogState = new DialogContext();
+        DialogContext dialogContext = new DialogContext();
         Integer lastStartingItem = (Integer) session.getAttribute("lastStartingItem");
         if (lastStartingItem == null) {
-            dialogState.setLastStartingItem(0);
+            dialogContext.setLastStartingItem(0);
         } else {
-            dialogState.setLastStartingItem(lastStartingItem);            
+            dialogContext.setLastStartingItem(lastStartingItem);            
         }
 
         Integer nextItem = (Integer) session.getAttribute("nextItem");
         if (nextItem == null) {
-            dialogState.setNextItem(0);
+            dialogContext.setNextItem(0);
         } else {
-            dialogState.setNextItem(nextItem);
+            dialogContext.setNextItem(nextItem);
         }
 
         Integer listLength = (Integer) session.getAttribute("listLength");
         if (listLength == null) {
-            dialogState.setListLength(0);
+            dialogContext.setListLength(0);
         } else {
-            dialogState.setListLength(listLength);
+            dialogContext.setListLength(listLength);
         }
 
         String requestedSection = (String) session.getAttribute("requestedSection");
-        dialogState.setRequestedSection(requestedSection);
+        dialogContext.setRequestedSection(requestedSection);
 
         String currentNode = (String) session.getAttribute("currentState");
         if (currentNode == null) {
-            dialogState.setCurrentState(State.INIT);
+            dialogContext.setCurrentState(State.INIT);
         } else {
-            dialogState.setCurrentState(currentNode);
+            dialogContext.setCurrentState(currentNode);
         }
-        return dialogState;
+        return dialogContext;
     }
 
-    private void storeDialogContext(Session session, DialogContext dialogState) {
-        session.setAttribute("lastStartingItem", dialogState.getLastStartingItem());
-        session.setAttribute("nextItem", dialogState.getNextItem());
-        session.setAttribute("listLength", dialogState.getListLength());
-        session.setAttribute("requestedSection", dialogState.getRequestedSection());
-        session.setAttribute("currentState", dialogState.getCurrentState());
+    private void storeDialogContext(Session session, DialogContext dialogContext) {
+        session.setAttribute("lastStartingItem", dialogContext.getLastStartingItem());
+        session.setAttribute("nextItem", dialogContext.getNextItem());
+        session.setAttribute("listLength", dialogContext.getListLength());
+        session.setAttribute("requestedSection", dialogContext.getRequestedSection());
+        session.setAttribute("currentState", dialogContext.getCurrentState());
     }
 
 }
