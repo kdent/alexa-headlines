@@ -143,45 +143,45 @@ public class HeadlinesSpeechlet implements Speechlet {
 
     private DialogContext retrieveDialogContext(Session session) {
         DialogContext dialogContext = new DialogContext();
-        Integer lastStartingItem = (Integer) session.getAttribute("lastStartingItem");
+        Integer lastStartingItem = (Integer) session.getAttribute(DialogContext.LAST_STARTING_ITEM);
         if (lastStartingItem == null) {
             dialogContext.setLastStartingItem(0);
         } else {
             dialogContext.setLastStartingItem(lastStartingItem);            
         }
 
-        Integer nextItem = (Integer) session.getAttribute("nextItem");
+        Integer nextItem = (Integer) session.getAttribute(DialogContext.NEXT_ITEM);
         if (nextItem == null) {
             dialogContext.setNextItem(0);
         } else {
             dialogContext.setNextItem(nextItem);
         }
 
-        Integer listLength = (Integer) session.getAttribute("listLength");
+        Integer listLength = (Integer) session.getAttribute(DialogContext.LIST_LENGTH);
         if (listLength == null) {
             dialogContext.setListLength(0);
         } else {
             dialogContext.setListLength(listLength);
         }
 
-        String requestedSection = (String) session.getAttribute("requestedSection");
+        String requestedSection = (String) session.getAttribute(DialogContext.REQUESTED_SECTION);
         dialogContext.setRequestedSection(requestedSection);
 
-        String currentNode = (String) session.getAttribute("currentState");
-        if (currentNode == null) {
+        String currentState = (String) session.getAttribute(DialogContext.CURRENT_STATE);
+        if (currentState == null) {
             dialogContext.setCurrentState(State.INIT);
         } else {
-            dialogContext.setCurrentState(currentNode);
+            dialogContext.setCurrentState(currentState);
         }
         return dialogContext;
     }
 
     private void storeDialogContext(Session session, DialogContext dialogContext) {
-        session.setAttribute("lastStartingItem", dialogContext.getLastStartingItem());
-        session.setAttribute("nextItem", dialogContext.getNextItem());
-        session.setAttribute("listLength", dialogContext.getListLength());
-        session.setAttribute("requestedSection", dialogContext.getRequestedSection());
-        session.setAttribute("currentState", dialogContext.getCurrentState());
+        session.setAttribute(DialogContext.LAST_STARTING_ITEM, dialogContext.getLastStartingItem());
+        session.setAttribute(DialogContext.NEXT_ITEM, dialogContext.getNextItem());
+        session.setAttribute(DialogContext.LIST_LENGTH, dialogContext.getListLength());
+        session.setAttribute(DialogContext.REQUESTED_SECTION, dialogContext.getRequestedSection());
+        session.setAttribute(DialogContext.CURRENT_STATE, dialogContext.getCurrentState());
     }
 
 }

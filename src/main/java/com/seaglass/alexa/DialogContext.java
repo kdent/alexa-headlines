@@ -7,6 +7,14 @@ import com.seaglass.alexa.DialogManager.State;
 public class DialogContext implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /* Constants to refer to context names for session attributes. */
+    public static String REQUESTED_SECTION = "requestedSection";
+    public static String LAST_STARTING_ITEM = "lastStartingItem";
+    public static String NEXT_ITEM = "nextItem";
+    public static String LIST_LENGTH = "listLength";
+    public static String CURRENT_STATE = "currentState";
+
     private String requestedSection;
     private int lastStartingItem;
     private int nextItem;
@@ -55,5 +63,4 @@ public class DialogContext implements Serializable {
         return "{requestedSection: " + requestedSection + ", lastStartingItem: " + 
                 lastStartingItem + ", nextItem: " + nextItem + ", listLength: " + listLength + ", currentState: " + currentState + "}";
     }
-
 }
