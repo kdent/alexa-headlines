@@ -2,7 +2,8 @@ package com.seaglass.alexa;
 
 public class DialogManager {
 
-    public static State getNextState(State currentState, Symbol currentSymbol, DialogContext dialogContext) {
+    public static State getNextState(DialogContext dialogContext, Symbol currentSymbol) {
+        State currentState = dialogContext.getCurrentState();
         State nextState = null;
         if (dialogContext.getLastStartingItem() > dialogContext.getListLength()) {
             nextState = State.INIT;
@@ -14,7 +15,9 @@ public class DialogManager {
 
     public static Symbol getSymbol(String intent) {
         Symbol symbol = null;
-        if (intent.equals("StartList")) {
+        if (intent.equals("Launch")) {
+          symbol = Symbol.Launch;
+        } else if (intent.equals("StartList")) {
             symbol = Symbol.StartList;
         } else if (intent.equals("Request")) {
             symbol = Symbol.RequestList;

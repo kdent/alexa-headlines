@@ -10,6 +10,7 @@ public class LanguageGenerator {
     private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in <break time=\"0.1s\"/>Technology? Or what are the top stories in <break time=\"0.1s\"/>business";
     private static final String PROMPT_MSG = "Which section do you want to hear?";
     private static final String GENERAL_ERROR = "Sorry, I'm having a problem and can't help you right now.";
+    private static final String UNKNOWN_SECTION_ERROR = "I'm sorry I don't understand the section you asked for.";
 
     public static String itemListResponse(DialogContext dialogState, List<String> itemList) {
         StringBuilder responseText = new StringBuilder("<speak>");
@@ -80,5 +81,9 @@ public class LanguageGenerator {
 
     public static String askSection() {
         return "<speak>" + PROMPT_MSG + "</speak>";
+    }
+
+    public static String unknownSectionError() {
+        return "<speak>" + UNKNOWN_SECTION_ERROR + "</speak>";
     }
 }

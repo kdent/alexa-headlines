@@ -18,7 +18,7 @@ public class DialogManagerTest {
 	public void testRequestList() {
 	    DialogContext dialogContext = new DialogContext();
 	    dialogContext.setCurrentState("INIT");
-	    DialogManager.State nextState = DialogManager.getNextState(DialogManager.State.IN_LIST, Symbol.RequestList, dialogContext);
+	    DialogManager.State nextState = DialogManager.getNextState(dialogContext, Symbol.RequestList);
 	    assertEquals(DialogManager.State.REQUEST, nextState);
 	}
 

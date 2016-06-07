@@ -54,6 +54,16 @@ public class ResponseGeneratorTest {
 	}
 
 	@Test
+	public void testLaunchRequest() throws NytApiException, IOException {
+	    DialogContext dialogContext = new DialogContext();
+	    dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, DialogManager.getSymbol("Launch")));
+	    SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+
+	    SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+	    assertEquals(LanguageGenerator.welcomeMessage(), speech.getSsml());
+	}
+
+	@Test
 	public void testNullSection() {
 
 		DialogContext dialogContext = new DialogContext();

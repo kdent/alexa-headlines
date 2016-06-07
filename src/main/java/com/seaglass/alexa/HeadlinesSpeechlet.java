@@ -15,37 +15,27 @@ import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
-import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.DialogManager.State;
 import com.seaglass.alexa.exceptions.NytApiException;
 
 /*
  * TODO:
- *     - implement the built-in intents
- *     - include a card in the response (with article summaries)
  *     - cache results from the NYT API (DynamoDB)
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *
- *       import list of sections to make sure that the section you get is on the list
  *       implement the rest of the built-in intents
+ *     - include a card in the response (with article summaries)
  */
 
 public class HeadlinesSpeechlet implements Speechlet {
 
     private static final Logger log = LoggerFactory.getLogger(HeadlinesSpeechlet.class);
-    private static String newYorkTimesKey = null;
 
     @Override
     public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
 
         log.info("onIntent requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-        try {
-            newYorkTimesKey = KeyReader.getAPIKey();
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-            return ResponseGenerator.errorResponse(LanguageGenerator.apiError());
-        }
 
         Intent intent = request.getIntent();
         DialogContext dialogContext = retrieveDialogContext(session);
@@ -57,7 +47,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         DialogManager.Symbol currentSymbol = null;
 
         /*
-         * If for some reason there's no intent, we've got a fatal problem.
+         * If for some reason there's no intent, there is a fatal problem.
          */
         if (intent == null) {
             throw new SpeechletException("Received a NULL intent");
@@ -83,6 +73,10 @@ public class HeadlinesSpeechlet implements Speechlet {
                         }
                 }
             }
+            if (NewYorkTimesArticle.isSection(requestedSection)) {
+                log.error("requestedSection: " + requestedSection + " is unknown");
+                return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError());
+            }
             dialogContext.setRequestedSection(requestedSection);
         }
 
@@ -92,7 +86,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         currentSymbol = DialogManager.getSymbol(intentName);
         if (currentSymbol == null)
             throw new SpeechletException("Unrecognized intent: " + intentName);
-        dialogContext.setCurrentState(DialogManager.getNextState(dialogContext.getCurrentState(), currentSymbol, dialogContext));
+        dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, currentSymbol));
         log.info("new dialog context: " + dialogContext);
 
         /*
@@ -100,8 +94,12 @@ public class HeadlinesSpeechlet implements Speechlet {
          */
         SpeechletResponse resp = null;
         try {
-            resp = ResponseGenerator.generate(dialogContext, newYorkTimesKey);
+            resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
         } catch (NytApiException ex) {
+            log.error(ex.getMessage());
+            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
             resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
         }
 
@@ -113,16 +111,20 @@ public class HeadlinesSpeechlet implements Speechlet {
     @Override
     public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         log.info("onLaunch requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-        SpeechletResponse resp = new SpeechletResponse();
 
-        String outputText = LanguageGenerator.welcomeMessage();
- 
-        SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-        outputSpeech.setSsml(outputText);
- 
-        resp.setShouldEndSession(false);
-        resp.setOutputSpeech(outputSpeech);
- 
+        DialogContext dialogContext = new DialogContext();
+        dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, DialogManager.getSymbol("Launch")));
+        SpeechletResponse resp = null;
+        try {
+            resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+        } catch (NytApiException ex) {
+            log.error(ex.getMessage());
+            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
+        }
+
         return resp;
     }
 
@@ -134,11 +136,6 @@ public class HeadlinesSpeechlet implements Speechlet {
     @Override
     public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
         log.info("onSessionStarted requestId=" + request.getRequestId() + ", sessionId=" + session.getSessionId());
-        try {
-            newYorkTimesKey = KeyReader.getAPIKey();
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-        }
     }
 
     private DialogContext retrieveDialogContext(Session session) {

@@ -9,11 +9,11 @@ public class DialogContext implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /* Constants to refer to context names for session attributes. */
-    public static String REQUESTED_SECTION = "requestedSection";
-    public static String LAST_STARTING_ITEM = "lastStartingItem";
-    public static String NEXT_ITEM = "nextItem";
-    public static String LIST_LENGTH = "listLength";
-    public static String CURRENT_STATE = "currentState";
+    public static final String REQUESTED_SECTION = "requestedSection";
+    public static final String LAST_STARTING_ITEM = "lastStartingItem";
+    public static final String NEXT_ITEM = "nextItem";
+    public static final String LIST_LENGTH = "listLength";
+    public static final String CURRENT_STATE = "currentState";
 
     private String requestedSection;
     private int lastStartingItem;

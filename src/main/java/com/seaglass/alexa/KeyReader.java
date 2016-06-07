@@ -8,8 +8,12 @@ import java.io.InputStreamReader;
 
 public class KeyReader {
 
+    private static String newYorkTimesKey;
+
     public static String getAPIKey() throws IOException {
-        String newYorkTimesKey = null;
+        if (newYorkTimesKey != null)
+            return newYorkTimesKey;
+
         InputStream nytKeyFile = HeadlinesSpeechlet.class.getResourceAsStream("/nyt_key");
         if (nytKeyFile == null) {
             throw new FileNotFoundException("Missing NYT key file. Cannot access headlines API.");

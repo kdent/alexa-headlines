@@ -47,6 +47,7 @@ public class ResponseGenerator {
             }
             break;
         case LAUNCH:
+            responseText = LanguageGenerator.welcomeMessage();
             resp.setShouldEndSession(false);
             break;
         case END:
