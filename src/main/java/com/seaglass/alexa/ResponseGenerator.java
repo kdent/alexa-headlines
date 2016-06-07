@@ -62,6 +62,16 @@ public class ResponseGenerator {
         resp.setOutputSpeech(outputSpeech);
         return resp;
     }
+
+    public static SpeechletResponse errorResponse(String errorMsg) {
+        SpeechletResponse resp = new SpeechletResponse();
+        resp.setShouldEndSession(true);
+        SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
+        outputSpeech.setSsml(errorMsg);
+        resp.setOutputSpeech(outputSpeech);
+        return resp;
+    }
+
     private static List<String> getHeadlines(String requestedSection, String newYorkTimesKey) throws IOException {
         if (requestedSection == null || requestedSection.length() < 1) {
             throw new RuntimeException("requestedSection paramater cannot be null or empty");

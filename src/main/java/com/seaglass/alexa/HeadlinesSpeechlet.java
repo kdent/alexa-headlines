@@ -27,7 +27,6 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *
- *       check what happens on a speechlet exception. if it's reasonable do that instead of custom response
  *       see if you can store the DialogContext object and retrieve it
  *       import list of sections to make sure that the section you get is on the list
  *       implement the rest of the built-in intents
@@ -46,12 +45,7 @@ public class HeadlinesSpeechlet implements Speechlet {
             newYorkTimesKey = KeyReader.getAPIKey();
         } catch (IOException ex) {
             log.error(ex.getMessage());
-            SpeechletResponse resp = new SpeechletResponse();
-            resp.setShouldEndSession(true);
-            SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-            outputSpeech.setSsml(LanguageGenerator.apiError());
-            resp.setOutputSpeech(outputSpeech);
-            return resp;
+            return ResponseGenerator.errorResponse(LanguageGenerator.apiError());
         }
 
         Intent intent = request.getIntent();
@@ -109,12 +103,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         try {
             resp = ResponseGenerator.generate(dialogContext, newYorkTimesKey);
         } catch (NytApiException ex) {
-            throw new SpeechletException(ex);
-//            resp = new SpeechletResponse();
-//            resp.setShouldEndSession(true);
-//            SsmlOutputSpeech outputSpeech = new SsmlOutputSpeech();
-//            outputSpeech.setSsml(LanguageGenerator.apiError());
-//            resp.setOutputSpeech(outputSpeech);
+            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
         }
 
         log.info("storing dialog context: " + dialogContext);
