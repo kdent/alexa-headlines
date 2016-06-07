@@ -17,13 +17,13 @@ public class DialogManager {
         Symbol symbol = null;
         if (intent.equals("Launch")) {
           symbol = Symbol.Launch;
-        } else if (intent.equals("StartList")) {
-            symbol = Symbol.StartList;
+        } else if (intent.equals("StartList") || intent.equals("AMAZON.StartOverIntent") || intent.equals("AMAZON.RepeatIntent")) {
+            symbol = Symbol.ReadSection;
         } else if (intent.equals("Request")) {
             symbol = Symbol.RequestList;
         } else if (intent.equals("AMAZON.YesIntent")) {
             symbol = Symbol.Yes;
-        } else if (intent.equals("AMAZON.NoIntent")) {
+        } else if (intent.equals("AMAZON.NoIntent") || intent.equals("AMAZON.CancelIntent") || intent.equals("AMAZON.StopIntent")) {
             symbol = Symbol.No;
         } else if (intent.equals("AMAZON.HelpIntent")) {
             symbol = Symbol.Help;
@@ -43,7 +43,7 @@ public class DialogManager {
     public enum Symbol {
         Launch,
         RequestList,
-        StartList,
+        ReadSection,
         Yes,
         No,
         Help

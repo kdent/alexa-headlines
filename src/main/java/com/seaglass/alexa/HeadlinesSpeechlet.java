@@ -64,20 +64,26 @@ public class HeadlinesSpeechlet implements Speechlet {
             if (sectionSlot != null) {
                 requestedSection = sectionSlot.getValue();
                 if (requestedSection != null) {
-                        requestedSection = requestedSection.toLowerCase();
-                        String contextRequestedSection = dialogContext.getRequestedSection();
-                        // If someone asks for a new section, reset the list pointer to the top of the list.
-                        if (contextRequestedSection != null && (! contextRequestedSection.equals(requestedSection))) {
-                            dialogContext.setNextItem(0);
-                            dialogContext.setLastStartingItem(0);
-                        }
+                    requestedSection = requestedSection.toLowerCase();
+                    if (! NewYorkTimesArticle.isSection(requestedSection)) {
+                        log.error("requestedSection: " + requestedSection + " is unknown");
+                        return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError());
+                    }
+
+                    // If someone asks for a new section, reset the list pointer to the top of the list.
+                    String contextRequestedSection = dialogContext.getRequestedSection();
+                    if (contextRequestedSection != null && (! contextRequestedSection.equals(requestedSection))) {
+                        dialogContext.setNextItem(0);
+                        dialogContext.setLastStartingItem(0);
+                    }
                 }
             }
-            if (NewYorkTimesArticle.isSection(requestedSection)) {
-                log.error("requestedSection: " + requestedSection + " is unknown");
-                return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError());
-            }
             dialogContext.setRequestedSection(requestedSection);
+        } else if (intentName.equals("AMAZON.RepeatIntent")) {
+            dialogContext.setNextItem(dialogContext.getLastStartingItem());
+        } else if (intentName.equals("AMAZON.StartOverIntent")) {
+            dialogContext.setNextItem(0);
+            dialogContext.setLastStartingItem(0);
         }
 
         /*
