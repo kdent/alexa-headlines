@@ -29,14 +29,14 @@ public class NYTimesTopStoriesClientTest {
 
 	@Test
 	public void testUnicodeEscapes1() {
-	    String correctedString = NYTimesTopStoriesClient.replaceUnicodeEscapes("This is\\u2019 a sample text file \\u2014and it can ...");
+	    String correctedString = NYTimesTopStoriesClient.replaceUnicodeEscapes("This is\u2019 a sample text file \u2014and it can ...");
 	    assertEquals("This is' a sample text file -and it can ...", correctedString);
 	}
 
 	@Test
 	public void testUnicodeEscapes2() {
-	    String correctedString = NYTimesTopStoriesClient.replaceUnicodeEscapes("Questions Surround Sumner Redstone\\u2019s New Team of Representatives");
-	    assertEquals("Questions Surround Sumner Redstone's New Team of Representatives", correctedString);
+	    String correctedString = NYTimesTopStoriesClient.replaceUnicodeEscapes("Questions Surround Sumner Redstone\u2019s New Team of \u201cRepresentatives\u201d");
+	    assertEquals("Questions Surround Sumner Redstone's New Team of \"Representatives\"", correctedString);
 	}
 
 }

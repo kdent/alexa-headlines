@@ -93,8 +93,8 @@ public class NYTimesTopStoriesClient
     }
 
     public static String replaceUnicodeEscapes(String origString) {
-        origString = origString.replaceAll("\\\\u2014", "-").replaceAll("\\\\u2018", "'").
-            replaceAll("\\\\u2019", "'").replaceAll("\\\\u201c", "\"").replaceAll("\\\\u201d", "\"");
+        origString = origString.replaceAll("\\u2014", "-").replaceAll("\\u2018", "'").
+            replaceAll("\\u2019", "'").replaceAll("\\u201c", "\"").replaceAll("\\u201d", "\"");
         return origString;
     }
 
