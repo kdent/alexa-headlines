@@ -1,16 +1,28 @@
 Request the top stories
+Request the top headlines
 Request for the top stories
+Request for the top headlines
 Request what are the top stories
+Request what are the top headlines
 Request what the top stories are
+Request what the top headlines are
 Request get the top stories
+Request get the top headlines
 
 StartList {Section}
 StartList the top stories in {Section}
+StartList the top headlines in {Section}
 StartList for the top stories in {Section}
+StartList for the top headlines in {Section}
 StartList what are the top stories in {Section}
+StartList what are the top headlines in {Section}
 StartList what are the top {Section} stories
+StartList what are the top {Section} headlines
 StartList what the top stories are in {Section}
+StartList what the top headlines are in {Section}
 StartList what the top {Section} stories are
+StartList what the top {Section} headlines are
 StartList get the top stories in {Section}
+StartList get the top headlines in {Section}
 
 StartList {Section}
