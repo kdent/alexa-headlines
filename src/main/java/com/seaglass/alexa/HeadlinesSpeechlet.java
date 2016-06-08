@@ -24,7 +24,9 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *     - investigate enhancing TTS by analyzing POS tags to give Alexa better guidance, e.g. 
  *       The following words rhyme with said: bed, fed, <w role="ivona:VBD">read</w>
  *
- *     - include a card in the response (with article summaries)
+ *     - test card in the response (with article summaries)
+ *     - add a skill to ask how many stories in a section
+ *     - add reprompts to questions?
  */
 
 public class HeadlinesSpeechlet implements Speechlet {
@@ -116,13 +118,15 @@ public class HeadlinesSpeechlet implements Speechlet {
         dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, DialogManager.getSymbol("Launch")));
         SpeechletResponse resp = null;
         try {
-            resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+            resp = ResponseGenerator.generate(dialogContext, null);
         } catch (NytApiException ex) {
             log.error(ex.getMessage());
             resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
+// Checking to see if launching loads faster without reading the key. I'm trying to see if it's causing a perceived delay.
+//  It's a little risky to pass it in as null but since I know the key is not needed in the case, it's okay for now.
+//        } catch (IOException ex) {
+//            log.error(ex.getMessage());
+//            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
         }
 
         return resp;

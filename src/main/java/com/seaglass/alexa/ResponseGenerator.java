@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.ui.Card;
+import com.amazon.speech.ui.SimpleCard;
 import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.exceptions.NytApiException;
 
@@ -16,7 +18,7 @@ public class ResponseGenerator {
         switch(dialogContext.getCurrentState()) {
         case INIT:
             resp.setShouldEndSession(true);
-            break;        // No response from INIT state.
+            break;        // There is no response from the INIT state.
         case HELP:
             responseText = LanguageGenerator.helpResponse();
             resp.setShouldEndSession(true);
@@ -26,10 +28,12 @@ public class ResponseGenerator {
             resp.setShouldEndSession(false);
             break;
         case IN_LIST:
+            List<NewYorkTimesArticle> articleList = null;
             List<String> headlineList = null;
             String requestedSection = dialogContext.getRequestedSection();
             try {
-                headlineList = getHeadlines(requestedSection, newYorkTimesKey);
+                articleList = getArticleList(requestedSection, newYorkTimesKey);
+                headlineList = articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
                 dialogContext.setListLength(headlineList.size());
             } catch (IOException ex) {
                 throw new NytApiException(ex);
@@ -38,6 +42,12 @@ public class ResponseGenerator {
                 responseText = LanguageGenerator.itemListResponse(dialogContext, headlineList);
             } else {
                 responseText = LanguageGenerator.emptyResponse(dialogContext);
+            }
+            // At the beginning of a list generate a Card to include in the response.
+            if (dialogContext.getNextItem() == 0) {
+                Card responseCard = makeResponseCard(articleList, requestedSection);
+                if (responseCard != null)
+                    resp.setCard(responseCard);
             }
             // Check that the list has completed.
             if (dialogContext.getNextItem() != 0 && (dialogContext.getNextItem() >= dialogContext.getListLength())) {
@@ -73,7 +83,7 @@ public class ResponseGenerator {
         return resp;
     }
 
-    private static List<String> getHeadlines(String requestedSection, String newYorkTimesKey) throws IOException {
+    private static List<NewYorkTimesArticle> getArticleList(String requestedSection, String newYorkTimesKey) throws IOException {
         if (requestedSection == null || requestedSection.length() < 1) {
             throw new RuntimeException("requestedSection paramater cannot be null or empty");
         }
@@ -82,7 +92,18 @@ public class ResponseGenerator {
            if (articleList == null) {
                throw new IOException();
            }
-        return articleList.stream().map(NewYorkTimesArticle::getTitle).collect(Collectors.toList());
+        return articleList;
+    }
+
+    private static Card makeResponseCard(List<NewYorkTimesArticle> articleList, String sectionName) {
+        SimpleCard card = new SimpleCard();
+        card.setTitle("Top Stories in " + sectionName);
+        StringBuilder buf = new StringBuilder();
+        for (NewYorkTimesArticle article : articleList) {
+            buf.append(article.getTitle() + "\n" + article.getAbstractText() + "\n\n");
+        }
+        card.setContent(buf.toString());
+        return card;
     }
 
 }
