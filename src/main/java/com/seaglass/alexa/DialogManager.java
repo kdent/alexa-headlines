@@ -35,7 +35,7 @@ public class DialogManager {
         INIT,       // starting state
         LAUNCH,     // User has launched the skill
         REQUEST,    // User has requested headlines without giving a section
-        IN_LIST,    // User has requested headlines with a section or has asked to continue a list that has been started
+        DELIVER_LIST,    // User has requested headlines with a section or has asked to continue a list that has been started
         HELP,       // User has asked for help with the skill
         END     // An error condition
     }
@@ -50,13 +50,13 @@ public class DialogManager {
     }
 
     private static State[][] transitionTable = {
-        // Launch      RequestList    StartList      Yes            No          Help
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // INIT
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // LAUNCH
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.HELP},    // REQUEST
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.IN_LIST, State.END, State.HELP},    // IN_LIST
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.REQUEST, State.END, State.INIT},    // HELP
-        {State.LAUNCH, State.REQUEST, State.IN_LIST, State.INIT,    State.END, State.HELP}     // END
+        // Launch      RequestList    StartList           Yes                 No          Help
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.REQUEST,      State.END, State.HELP},    // INIT
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.REQUEST,      State.END, State.HELP},    // LAUNCH
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.REQUEST,      State.END, State.HELP},    // REQUEST
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.DELIVER_LIST, State.END, State.HELP},    // IN_LIST
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.REQUEST,      State.END, State.INIT},    // HELP
+        {State.LAUNCH, State.REQUEST, State.DELIVER_LIST, State.INIT,         State.END, State.HELP}     // END
     };
 
 }

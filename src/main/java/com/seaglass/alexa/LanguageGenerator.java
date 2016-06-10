@@ -4,10 +4,10 @@ import java.util.List;
 
 public class LanguageGenerator {
 
-    private static final String HELP_MSG = "Headlines lists the top news stories as provided by the The New York Times. To use Headlines";
+    private static final String HELP_MSG = "Headlines lists the top news stories as provided by the The New York Times.";
     private static final String API_ERROR = "Sorry, I had a problem trying to get the list. Please try again later.";
-    private static final String WELCOME_MSG = "With Headlines, you get headlines for the top stories in the news";
-    private static final String EXAMPLE_MSG = "For example, you can say, What are the top stories in 'Technology'? Or what are the top stories in 'Business'";
+    private static final String WELCOME_MSG = "Headlines lists the top news stories from The New York Times";
+    private static final String EXAMPLE_MSG = "To hear a list of headlines, you can say, What are the top stories in 'Technology'? Or what are the top stories in 'Business'";
     private static final String PROMPT_MSG = "Which section do you want to hear?";
     private static final String GENERAL_ERROR = "Sorry, I'm having a problem and can't help you right now.";
     private static final String UNKNOWN_SECTION_ERROR = "I'm sorry I don't understand the section you asked for.";

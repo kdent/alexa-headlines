@@ -26,6 +26,7 @@ import com.seaglass.alexa.exceptions.NytApiException;
  *
  *     - test card in the response (with article summaries)
  *     - add a skill to ask how many stories in a section
+ *     - add a skill to list the sections
  *     - add reprompts to questions?
  */
 
@@ -63,7 +64,7 @@ public class HeadlinesSpeechlet implements Speechlet {
                     requestedSection = requestedSection.toLowerCase();
                     if (! NewYorkTimesArticle.isSection(requestedSection)) {
                         log.error("requestedSection: " + requestedSection + " is unknown");
-                        return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError());
+                        return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError(), false);
                     }
 
                     // If someone asks for a new section, reset the list pointer to the top of the list.

@@ -10,7 +10,7 @@ public class DialogContextTest {
     public void testSetStateAsString() {
         DialogContext dialogContext = new DialogContext();
         dialogContext.setCurrentState("IN_LIST");
-        assertEquals(DialogManager.State.IN_LIST, dialogContext.getCurrentState());
+        assertEquals(DialogManager.State.DELIVER_LIST, dialogContext.getCurrentState());
     }
 
     @Test
