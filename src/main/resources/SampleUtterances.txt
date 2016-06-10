@@ -8,6 +8,8 @@ Request what the top stories are
 Request what the top headlines are
 Request get the top stories
 Request get the top headlines
+Request give me the top stories
+Request give me the top headlines
 
 StartList {Section}
 StartList the top stories in {Section}
@@ -24,5 +26,7 @@ StartList what the top {Section} stories are
 StartList what the top {Section} headlines are
 StartList get the top stories in {Section}
 StartList get the top headlines in {Section}
+StartList give me the top stories
+StartList give me the top headlines
 
 StartList {Section}
