@@ -9,6 +9,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import com.google.gson.stream.JsonReader;
 
 
@@ -71,9 +73,10 @@ public class NYTimesTopStoriesClient
                         } else if (attribute.equals("byline")) {
                             article.setByline(jsonReader.nextString());
                         } else if (attribute.equals("title")) {
-                            article.setTitle(replaceUnicodeEscapes(jsonReader.nextString()));
+                            article.setTitle(StringEscapeUtils.unescapeHtml4(replaceUnicodeEscapes(jsonReader.nextString())));
                         } else if (attribute.equals("abstract")) {
-                            article.setAbstractText(jsonReader.nextString());
+                            // Don't replace unicode escapes in the abstract since the Alexa app seems to display them correctly.
+                            article.setAbstractText(StringEscapeUtils.unescapeHtml4(jsonReader.nextString()));
                         } else if (attribute.equals("published_date")) {
                             article.setPublishedDateString(jsonReader.nextString());
                         } else {

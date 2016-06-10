@@ -15,6 +15,7 @@ import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.ui.SsmlOutputSpeech;
 import com.seaglass.alexa.DialogManager.State;
 import com.seaglass.alexa.exceptions.NytApiException;
 
@@ -98,6 +99,8 @@ public class HeadlinesSpeechlet implements Speechlet {
         SpeechletResponse resp = null;
         try {
             resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+            SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+            log.info("sending response of " + speech.getSsml());
         } catch (NytApiException ex) {
             log.error(ex.getMessage());
             resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
@@ -119,15 +122,13 @@ public class HeadlinesSpeechlet implements Speechlet {
         dialogContext.setCurrentState(DialogManager.getNextState(dialogContext, DialogManager.getSymbol("Launch")));
         SpeechletResponse resp = null;
         try {
-            resp = ResponseGenerator.generate(dialogContext, null);
+            resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
         } catch (NytApiException ex) {
             log.error(ex.getMessage());
             resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
-// Checking to see if launching loads faster without reading the key. I'm trying to see if it's causing a perceived delay.
-//  It's a little risky to pass it in as null but since I know the key is not needed in the case, it's okay for now.
-//        } catch (IOException ex) {
-//            log.error(ex.getMessage());
-//            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+            resp = ResponseGenerator.errorResponse(LanguageGenerator.apiError());
         }
 
         return resp;
@@ -173,7 +174,7 @@ public class HeadlinesSpeechlet implements Speechlet {
         if (currentState == null) {
             dialogContext.setCurrentState(State.INIT);
         } else {
-            dialogContext.setCurrentState(currentState);
+            dialogContext.setCurrentState(DialogManager.getState(currentState));
         }
         return dialogContext;
     }

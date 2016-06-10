@@ -4,11 +4,13 @@ import java.util.List;
 
 public class LanguageGenerator {
 
-    private static final String HELP_MSG = "Headlines lists the top news stories as provided by the The New York Times.";
+    private static final String HELP_MSG = "You can ask for headlines from sections of The New York Times.";
     private static final String API_ERROR = "Sorry, I had a problem trying to get the list. Please try again later.";
     private static final String WELCOME_MSG = "Headlines lists the top news stories from The New York Times";
-    private static final String EXAMPLE_MSG = "To hear a list of headlines, you can say, What are the top stories in 'Technology'? Or what are the top stories in 'Business'";
+    private static final String EXAMPLE_MSG = "To hear the headline list, you can say, What are the top stories in technology? Or what are the top stories in business";
     private static final String PROMPT_MSG = "Which section do you want to hear?";
+    private static final String REPROMPT_MSG = "You can just say the name of the section you want.";
+    private static final String CONTINUATION_REPROMPT = "Should I keep reading the list?";
     private static final String GENERAL_ERROR = "Sorry, I'm having a problem and can't help you right now.";
     private static final String UNKNOWN_SECTION_ERROR = "I'm sorry I don't understand the section you asked for.";
 
@@ -36,8 +38,8 @@ public class LanguageGenerator {
             if (sectionName != null && sectionName.length() > 0) {
                 responseText.append(" in " + sectionName);
             }
+            responseText.append("<break time=\"0.75s\" />");
         }
-        responseText.append("<break time=\"0.75s\" />");
         for (String item : deliveryList) {
             responseText.append(" " + item + "<break time=\"0.75s\" />");
         }
@@ -59,7 +61,7 @@ public class LanguageGenerator {
     }
 
     public static String helpResponse() {
-        return "<speak>" + HELP_MSG + " " + EXAMPLE_MSG + "<break time=\"0.5s\"/> " + PROMPT_MSG + "</speak>";
+        return "<speak>" + HELP_MSG + " " + EXAMPLE_MSG + "<break time=\"0.2s\"/>Or you can say exit.<break time=\"0.3s\"/>" + PROMPT_MSG + "</speak>";
     }
 
     public static String apiError() {
@@ -83,7 +85,15 @@ public class LanguageGenerator {
         return "<speak>" + PROMPT_MSG + "</speak>";
     }
 
+    public static String repromptSection() {
+        return "<speak>" + REPROMPT_MSG + "</speak>";
+    }
+
     public static String unknownSectionError() {
         return "<speak>" + UNKNOWN_SECTION_ERROR + " " + PROMPT_MSG + "</speak>";
+    }
+
+    public static String continuationReprompt() {
+        return "<speak>" + CONTINUATION_REPROMPT + "</speak>";
     }
 }

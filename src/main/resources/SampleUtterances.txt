@@ -1,32 +1,107 @@
 Request the top stories
 Request the top headlines
+Request the top articles
 Request for the top stories
 Request for the top headlines
+Request for the top articles
 Request what are the top stories
 Request what are the top headlines
+Request what are the top articles
+Request what're the top stories
+Request what're the top headlines
+Request what're the top articles
 Request what the top stories are
 Request what the top headlines are
+Request what the top articles are
 Request get the top stories
 Request get the top headlines
+Request get the top articles
 Request give me the top stories
 Request give me the top headlines
+Request give me the top articles
+Request find me the top stories
+Request find me the top headlines
+Request find me the top articles
+Request find the top stories
+Request find the top headlines
+Request find the top articles
+Request tell me the top stories
+Request tell me the top headlines
+Request tell me the top articles
+Request request the top stories
+Request request the top headlines
+Request request the top articles
 
 StartList {Section}
 StartList the top stories in {Section}
 StartList the top headlines in {Section}
-StartList for the top stories in {Section}
-StartList for the top headlines in {Section}
+StartList the top articles in {Section}
 StartList what are the top stories in {Section}
 StartList what are the top headlines in {Section}
+StartList what are the top articles in {Section}
 StartList what are the top {Section} stories
 StartList what are the top {Section} headlines
+StartList what are the top {Section} articles
 StartList what the top stories are in {Section}
 StartList what the top headlines are in {Section}
-StartList what the top {Section} stories are
-StartList what the top {Section} headlines are
+StartList what're the top stories in {Section}
+StartList what're the top headlines in {Section}
+StartList what're the top articles in {Section}
+StartList what're the top {Section} stories
+StartList what're the top {Section} headlines
+StartList what're the top {Section} articles
 StartList get the top stories in {Section}
 StartList get the top headlines in {Section}
-StartList give me the top stories
-StartList give me the top headlines
+StartList get the top articles in {Section}
+StartList give me the top stories in {Section}
+StartList give me the top headlines in {Section}
+StartList give me the top articles in {Section}
+StartList find me the top stories in {Section}
+StartList find me the top headlines in {Section}
+StartList find me the top articles in {Section}
+StartList find the top stories in {Section}
+StartList find the top headlines in {Section}
+StartList find the top articles in {Section}
+StartList tell me the top stories in {Section}
+StartList tell me the top headlines in {Section}
+StartList tell me the top articles in {Section}
+StartList request the top stories in {Section}
+StartList request the top headlines in {Section}
+StartList request the top articles in {Section}
 
 StartList {Section}
+
+AMAZON.HelpIntent what can i ask you
+AMAZON.HelpIntent get help
+AMAZON.HelpIntent what do you do
+AMAZON.HelpIntent how can i use you
+AMAZON.HelpIntent how do i use you
+AMAZON.HelpIntent how do i get the headlines
+AMAZON.HelpIntent how do i get the list
+AMAZON.HelpIntent how do i get the news
+AMAZON.HelpIntent how do i get news
+AMAZON.HelpIntent what it can do
+AMAZON.HelpIntent what it's features are
+AMAZON.HelpIntent what it does
+AMAZON.HelpIntent how to use it
+AMAZON.HelpIntent how i talk to it
+AMAZON.HelpIntent help
+AMAZON.HelpIntent i need help
+
+AMAZON.StopIntent leave
+AMAZON.StopIntent quit
+AMAZON.StopIntent bye
+AMAZON.StopIntent goodbye
+AMAZON.StopIntent quit
+AMAZON.StopIntent quit it
+AMAZON.StopIntent stop
+AMAZON.StopIntent stop talking
+AMAZON.StopIntent cancel
+AMAZON.StopIntent hush
+AMAZON.StopIntent enough
+AMAZON.StopIntent enough already
+AMAZON.StopIntent that's enough
+AMAZON.StopIntent please stop
+AMAZON.StopIntent shut up
+AMAZON.StopIntent shut it
+AMAZON.StopIntent cut it out

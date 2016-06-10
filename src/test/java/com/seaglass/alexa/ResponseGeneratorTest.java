@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.SsmlOutputSpeech;
+import com.seaglass.alexa.DialogManager.State;
 import com.seaglass.alexa.exceptions.NytApiException;
 
 public class ResponseGeneratorTest {
@@ -25,7 +26,7 @@ public class ResponseGeneratorTest {
 	public void testHelpRequest() throws NytApiException, IOException {
 
 		DialogContext dialogContext = new DialogContext();
-		dialogContext.setCurrentState("HELP");
+		dialogContext.setCurrentState(State.HELP);
 		SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
 
 		SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
@@ -35,7 +36,7 @@ public class ResponseGeneratorTest {
 	@Test
 	public void testRequestList() throws NytApiException, IOException {
 	    DialogContext dialogContext = new DialogContext();
-	    dialogContext.setCurrentState("REQUEST");
+	    dialogContext.setCurrentState(State.REQUEST);
 	    SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
 	    SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
 	    assertEquals(LanguageGenerator.askSection(), speech.getSsml());
@@ -45,7 +46,7 @@ public class ResponseGeneratorTest {
 	public void testInList() throws NytApiException, IOException {
 
 		DialogContext dialogContext = new DialogContext();
-		dialogContext.setCurrentState("IN_LIST");
+		dialogContext.setCurrentState(State.DELIVER_LIST);
 		dialogContext.setRequestedSection("technology");
 		SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
 
@@ -64,27 +65,37 @@ public class ResponseGeneratorTest {
 	}
 
 	@Test
-	public void testNullSection() {
+	public void testNullSection() throws NytApiException, IOException {
 
 		DialogContext dialogContext = new DialogContext();
-		dialogContext.setCurrentState("IN_LIST");
-		try {
-			ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
-		} catch (RuntimeException ex) {
-			return;
-		} catch (IOException ex) {
-			;
-		}
+		dialogContext.setCurrentState(State.DELIVER_LIST);
+		SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+		SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+		assertEquals(LanguageGenerator.askSection(), speech.getSsml());
 
-		fail("There should have been a NytApiException exception");
+	}
 
+	@Test
+	public void testNullState() throws NytApiException, IOException {
+	    DialogContext dialogContext = new DialogContext();
+	    dialogContext.setCurrentState(null);
+	    SpeechletResponse resp = ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());
+	    SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+	    assertEquals(LanguageGenerator.generalError(), speech.getSsml());
+	}
+
+	@Test
+	public void testNullDialogContext() throws NytApiException, IOException {
+	    SpeechletResponse resp = ResponseGenerator.generate(null, null);
+	    SsmlOutputSpeech speech = (SsmlOutputSpeech) resp.getOutputSpeech();
+	    assertEquals(LanguageGenerator.generalError(), speech.getSsml());
 	}
 
 	@Test
 	public void testInvalidSection() throws NytApiException, IOException {
 
 		DialogContext dialogContext = new DialogContext();
-		dialogContext.setCurrentState("IN_LIST");
+		dialogContext.setCurrentState(State.DELIVER_LIST);
 		dialogContext.setRequestedSection("bogus_section");
 		try {
 			ResponseGenerator.generate(dialogContext, KeyReader.getAPIKey());

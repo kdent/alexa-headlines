@@ -31,6 +31,26 @@ public class DialogManager {
         return symbol;
     }
 
+    public static State getState(String stateName) {
+        State state = null;
+        if (stateName == null)
+            return null;
+        if (stateName.equals("INIT")) {
+            state = State.INIT;
+        } else if (stateName.equals("LAUNCH")) {
+            state = State.LAUNCH;
+        } else if (stateName.equals("REQUEST")) {
+            state = State.REQUEST;
+        } else if (stateName.equals("DELIVER_LIST")) {
+            state = State.DELIVER_LIST;
+        } else if (stateName.equals("HELP")) {
+            state = State.HELP;
+        } else if (stateName.equals("END")) {
+            state = State.END;
+        }
+        return state;
+    }
+
     public enum State {
         INIT,       // starting state
         LAUNCH,     // User has launched the skill

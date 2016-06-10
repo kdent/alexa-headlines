@@ -2,8 +2,6 @@ package com.seaglass.alexa;
 
 import java.io.Serializable;
 
-import com.seaglass.alexa.DialogManager.State;
-
 public class DialogContext implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,13 +42,6 @@ public class DialogContext implements Serializable {
     }
     public void setCurrentState(DialogManager.State currentState) {
         this.currentState = currentState;
-    }
-    public void setCurrentState(String stateName) {
-        try {
-            currentState = State.valueOf(stateName);
-        } catch (IllegalArgumentException ex) {
-            currentState = State.END;
-        }
     }
     public void setNextItem(int nextItem) {
         this.nextItem = nextItem;
