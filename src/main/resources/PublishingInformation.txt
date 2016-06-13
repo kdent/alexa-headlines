@@ -3,9 +3,9 @@ Short Skill Description: Listen to the top story headlines from The New York Tim
 Full Skill Description: Headlines provides you with the top stories from the New York Times from a variety of sections. Simply ask for the top stories in the section you're interested in. The data is provided by The New York Times, but The New York Times is not affiliated with this skill. 
 
 Example Phrases:
-Alexa, ask headlines for the top stories
-Alexa, ask headlines what the top stories in technology are
-Alexa, ask headlines for the top stories in business
+Alexa, ask top headlines for the top stories
+Alexa, ask top headlines what the top stories in technology are
+Alexa, ask top headlines for the top stories in business
 
 Category: News
 

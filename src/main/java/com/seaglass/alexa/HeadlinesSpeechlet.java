@@ -64,8 +64,14 @@ public class HeadlinesSpeechlet implements Speechlet {
                 if (requestedSection != null) {
                     requestedSection = requestedSection.toLowerCase();
                     if (! NewYorkTimesArticle.isSection(requestedSection)) {
-                        log.error("requestedSection: " + requestedSection + " is unknown");
-                        return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError(), false);
+                        // Special handling for cancel requests. Alexa insists on treating 'cancel' as a section name.
+                        if (requestedSection.equals("cancel")) {
+                            intentName = "AMAZON.CancelIntent";
+                            requestedSection = null;
+                        } else {
+                            log.error("requestedSection: " + requestedSection + " is unknown");
+                            return ResponseGenerator.errorResponse(LanguageGenerator.unknownSectionError(), false);
+                        }
                     }
 
                     // If someone asks for a new section, reset the list pointer to the top of the list.

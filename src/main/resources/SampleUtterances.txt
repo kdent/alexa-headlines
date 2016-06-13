@@ -39,6 +39,9 @@ StartList the top articles in {Section}
 StartList what are the top stories in {Section}
 StartList what are the top headlines in {Section}
 StartList what are the top articles in {Section}
+StartList what the top stories in {Section} are
+StartList what the top headlines in {Section} are
+StartList what the top articles in {Section} are
 StartList what are the top {Section} stories
 StartList what are the top {Section} headlines
 StartList what are the top {Section} articles
@@ -105,3 +108,10 @@ AMAZON.StopIntent please stop
 AMAZON.StopIntent shut up
 AMAZON.StopIntent shut it
 AMAZON.StopIntent cut it out
+
+AMAZON.CancelIntent cancel
+AMAZON.CancelIntent skip
+AMAZON.CancelIntent skip it
+AMAZON.CancelIntent done
+AMAZON.CancelIntent i'm done
+AMAZON.CancelIntent out
