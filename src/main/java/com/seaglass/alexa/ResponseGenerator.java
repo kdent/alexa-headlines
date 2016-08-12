@@ -125,7 +125,7 @@ public class ResponseGenerator {
         NYTimesTopStoriesClient apiClient = new NYTimesTopStoriesClient(newYorkTimesKey);
         List<NewYorkTimesArticle> articleList = apiClient.getArticleList(requestedSection);
            if (articleList == null) {
-               throw new IOException();
+               throw new IOException("No articles returned for section: " + requestedSection);
            }
         return articleList;
     }
